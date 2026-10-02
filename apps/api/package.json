@@ -20,13 +20,19 @@
   "packageManager": "pnpm@11.24.0",
   "type": "module",
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
     "express": "^5.2.1",
     "multer": "^2.4.0",
-    "prisma": "8.0.0-rc.15",
     "shared": "*"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/node": "^26.6.3",
+    "nodemon": "^3.1.14",
+    "prisma": "7.10.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }

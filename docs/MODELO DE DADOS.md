@@ -160,7 +160,7 @@ saída) não é representável como um array simples em um banco relacional.
 | id | PK | |
 | nome | string | nome da ação pontuável (ex.: `registro_hobby`, `desafio_concluido`, `bonus_cooperativo`) |
 | modo | enum: `fixo` \| `porTempo` | ver abaixo |
-| valor | number | pontos (fixo) ou pontos por unidade de tempo (porTempo) |
+| valor | decimal | pontos (fixo), pontos por unidade de tempo (porTempo) ou fator multiplicador de cooperação |
 | unidadeTempoMinutos | number? | obrigatório apenas quando `modo = porTempo`; fixo em `30` para todas as ações — "`valor` pontos a cada 30 minutos de duração" |
 
 **Comportamentos**
@@ -178,7 +178,8 @@ saída) não é representável como um array simples em um banco relacional.
   multiplicador sobre o valor já calculado pela ação `registro_hobby`
   (fixo ou por tempo, conforme o grupo), e não depende do `modoPontuacao` —
   ou seja, existe uma única variante de `bonus_cooperativo`, aplicada por
-  cima do cálculo base.
+  cima do cálculo base. O fator deve ser maior ou igual a `1`; o total de
+  pontos é arredondado para baixo e a diferença é registrada como bônus.
 - Toda ação pontuável do sistema deve ter uma linha correspondente aqui;
   nenhuma pontuação deve ser atribuída "no código" sem refletir nesta tabela.
 
@@ -224,6 +225,11 @@ saída) não é representável como um array simples em um banco relacional.
 - A criação de um `registro` válido gera, na mesma transação, uma entrada em
   `logAtividades` para cada usuário em `userIds` (respeitando o limite
   diário acima).
+- `foto` armazena a URL ou o caminho do arquivo de mídia; o upload e o
+  armazenamento do arquivo são responsabilidade do serviço de mídia.
+- Alterar ou apagar um registro não altera os logs de pontuação já gerados.
+  Ao apagar, a relação de origem do log fica nula e os pontos permanecem
+  como histórico append-only.
 
 ---
 

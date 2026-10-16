@@ -29,6 +29,8 @@ if (!accessTokenSecret || Buffer.byteLength(accessTokenSecret, "utf8") < 32) {
 
 const refreshTokenTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 7);
 const accessTokenTtl = process.env.ACCESS_TOKEN_TTL ?? "15m";
+const cooperativeMultiplier =
+  process.env.BONUS_COOPERATIVO_MULTIPLICADOR?.trim() || undefined;
 
 if (
   !Number.isInteger(refreshTokenTtlDays) ||
@@ -44,6 +46,17 @@ if (!/^[1-9]\d*[smhd]$/.test(accessTokenTtl)) {
   );
 }
 
+if (
+  cooperativeMultiplier !== undefined &&
+  (!Number.isFinite(Number(cooperativeMultiplier)) ||
+    Number(cooperativeMultiplier) < 1 ||
+    Number(cooperativeMultiplier) > 100)
+) {
+  throw new Error(
+    "BONUS_COOPERATIVO_MULTIPLICADOR deve ser um número entre 1 e 100.",
+  );
+}
+
 export const env = Object.freeze({
   databaseUrl,
   port,
@@ -51,5 +64,7 @@ export const env = Object.freeze({
   accessTokenSecret,
   accessTokenTtl,
   refreshTokenTtlDays,
+  cooperativeMultiplier:
+    cooperativeMultiplier === undefined ? null : Number(cooperativeMultiplier),
   nodeEnv: process.env.NODE_ENV ?? "development",
 });

@@ -4,6 +4,10 @@ import express from "express";
 import { ZodError } from "zod";
 import { env } from "./infra/env.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import groupRoutes from "./modules/groups/group.routes.js";
+import hobbyRoutes from "./modules/hobbies/hobby.routes.js";
+import recordRoutes from "./modules/records/record.routes.js";
+import userRoutes from "./modules/users/user.routes.js";
 
 export function buildApp() {
   const app = express();
@@ -17,6 +21,10 @@ export function buildApp() {
   app.use(express.json());
   app.use(cookieParser());
   app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/groups", groupRoutes);
+  app.use("/api/hobbies", hobbyRoutes);
+  app.use("/api/records", recordRoutes);
 
   app.use((error, req, res, next) => {
     if (res.headersSent) {

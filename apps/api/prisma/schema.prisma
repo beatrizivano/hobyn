@@ -160,7 +160,7 @@ model Pontuacao {
   id                  String        @id @default(cuid()) @db.VarChar(30)
   nome                String        @db.VarChar(100)
   modo                ModoPontuacao
-  valor               Int
+  valor               Decimal       @db.Decimal(10, 2)
   unidadeTempoMinutos Int?
 
   logsAtividades LogAtividades[]

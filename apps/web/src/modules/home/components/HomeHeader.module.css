@@ -1,0 +1,11 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--border);
+}
+.greeting { font-size: var(--text-sm); }
+.name { font-size: var(--text-2xl); overflow-wrap: anywhere; }
+.profile { display: block; flex: none; border-radius: var(--radius-full); box-shadow: var(--shadow); }

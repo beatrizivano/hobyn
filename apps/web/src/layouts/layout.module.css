@@ -1,0 +1,27 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--shell-max-width);
+  min-height: 100dvh;
+  margin-inline: auto;
+  background: var(--color-paper);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--content-padding);
+  padding-bottom: var(--space-6);
+}
+
+/* Telas maiores: a coluna mobile vira um "aparelho" centralizado. */
+@media (min-width: 48rem) {
+  .shell {
+    min-height: calc(100dvh - 2 * var(--space-5));
+    margin-block: var(--space-5);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+  }
+}

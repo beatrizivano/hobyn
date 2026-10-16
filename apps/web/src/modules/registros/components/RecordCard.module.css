@@ -1,0 +1,6 @@
+.card { padding: 0; }
+.link { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); text-decoration: none; }
+.header { display: flex; align-items: center; gap: var(--space-2); }
+.author { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--text-sm); }
+.likes { display: inline-flex; align-items: center; gap: var(--space-1); font-weight: 700; }

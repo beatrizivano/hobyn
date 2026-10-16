@@ -1,0 +1,4 @@
+.header { display: flex; align-items: center; gap: var(--space-3); }
+.titles { flex: 1; min-width: 0; }
+.title { font-size: var(--text-xl); overflow-wrap: anywhere; }
+.subtitle { font-size: var(--text-sm); color: var(--color-ink-soft); }

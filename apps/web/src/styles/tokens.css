@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Design tokens — única fonte de verdade de estilo do app.
+   Nenhum componente deve declarar cor, raio, sombra ou fonte literal:
+   sempre consumir uma variável daqui.
+   ========================================================================== */
+:root {
+  /* Cores (cinza + tinta + preto de sombra + 2 acentos de hobby) */
+  --color-paper: #e6e6e3;      /* fundo das telas */
+  --color-surface: #f6f6f4;    /* cards */
+  --color-white: #ffffff;      /* botões, campos, tags neutras */
+  --color-ink: #3d3d3d;        /* texto, bordas e elementos escuros */
+  --color-ink-soft: #5a5a57;   /* texto secundário (tom da tinta) */
+  --color-shadow: #000000;     /* usado SOMENTE em sombras sólidas */
+  --color-green: #8fd6a4;      /* acento: hobby */
+  --color-coral: #f28b76;      /* acento: hobby / estado de erro (borda) */
+  --color-avatar: #c9c9c5;     /* avatares e silhuetas */
+  --color-dither: #b5b5b1;     /* pontos do dither das fotos */
+  --color-dot: #b8b8b4;        /* pontos do fundo pontilhado */
+  --color-locked: #a5a5a0;     /* pixel art de badge bloqueada */
+
+  /* Tipografia */
+  --font-display: "Archivo Black", Impact, "Arial Black", sans-serif;
+  --font-body: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --leading-tight: 1.15;
+  --leading-body: 1.45;
+  --tracking-display: -0.01em;
+
+  /* Espaçamento */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Raios (máximo 8px; círculos só em avatar, ícones e badges) */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-full: 999px;
+
+  /* Bordas e sombras sólidas */
+  --border-width: 1.5px;
+  --border: var(--border-width) solid var(--color-ink);
+  --border-dashed: var(--border-width) dashed var(--color-ink);
+  --shadow: 4px 4px 0 var(--color-shadow);
+  --shadow-sm: 3px 3px 0 var(--color-shadow);
+  --shadow-pressed: 1px 1px 0 var(--color-shadow);
+
+  /* Layout (mobile first) */
+  --shell-max-width: 30rem;
+  --content-padding: var(--space-4);
+  --nav-height: 4.5rem;
+  --touch-target: 2.75rem;
+  --z-nav: 10;
+
+  /* Movimento */
+  --motion-fast: 80ms;
+
+  /* Texturas */
+  --texture-dots: radial-gradient(circle at 1.5px 1.5px, var(--color-dot) 0.8px, transparent 1.1px);
+  --texture-dots-size: 6px 6px;
+  --texture-dither: repeating-conic-gradient(var(--color-dither) 0 25%, var(--color-surface) 0 50%);
+  --texture-dither-size: 4px 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-fast: 0ms; }
+}

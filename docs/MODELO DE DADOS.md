@@ -32,6 +32,30 @@ desafios, conquistas) estão detalhadas em
 
 ---
 
+## `sessao`
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| id | PK | |
+| userId | FK `usuario` | |
+| refreshTokenHash | string, único | SHA-256 do refresh token; o token original nunca é persistido |
+| expiresAt | datetime | validade da sessão |
+| createdAt / updatedAt | datetime | auditoria da sessão e da rotação do token |
+| revokedAt | datetime? | preenchido no logout |
+
+**Comportamentos**
+- Cada login cria uma sessão independente. O refresh token é entregue em
+  cookie `httpOnly`, mas somente seu hash é salvo no banco.
+- Ao renovar a sessão, o refresh token anterior é invalidado e substituído
+  por um novo na mesma linha. Uma sessão expirada ou revogada não pode ser
+  renovada.
+- O access token é um JWT de curta duração e não é persistido; endpoints
+  autenticados o recebem no header `Authorization: Bearer`.
+- Usuários com `deletedAt` definido não podem renovar a sessão nem acessar
+  endpoints autenticados, mesmo que ainda tenham sessões não expiradas.
+
+---
+
 ## `grupo`
 
 | Campo | Tipo | Observação |
@@ -136,7 +160,7 @@ saída) não é representável como um array simples em um banco relacional.
 | id | PK | |
 | nome | string | nome da ação pontuável (ex.: `registro_hobby`, `desafio_concluido`, `bonus_cooperativo`) |
 | modo | enum: `fixo` \| `porTempo` | ver abaixo |
-| valor | number | pontos (fixo) ou pontos por unidade de tempo (porTempo) |
+| valor | decimal | pontos (fixo), pontos por unidade de tempo (porTempo) ou fator multiplicador de cooperação |
 | unidadeTempoMinutos | number? | obrigatório apenas quando `modo = porTempo`; fixo em `30` para todas as ações — "`valor` pontos a cada 30 minutos de duração" |
 
 **Comportamentos**
@@ -154,7 +178,8 @@ saída) não é representável como um array simples em um banco relacional.
   multiplicador sobre o valor já calculado pela ação `registro_hobby`
   (fixo ou por tempo, conforme o grupo), e não depende do `modoPontuacao` —
   ou seja, existe uma única variante de `bonus_cooperativo`, aplicada por
-  cima do cálculo base.
+  cima do cálculo base. O fator deve ser maior ou igual a `1`; o total de
+  pontos é arredondado para baixo e a diferença é registrada como bônus.
 - Toda ação pontuável do sistema deve ter uma linha correspondente aqui;
   nenhuma pontuação deve ser atribuída "no código" sem refletir nesta tabela.
 
@@ -200,6 +225,11 @@ saída) não é representável como um array simples em um banco relacional.
 - A criação de um `registro` válido gera, na mesma transação, uma entrada em
   `logAtividades` para cada usuário em `userIds` (respeitando o limite
   diário acima).
+- `foto` armazena a URL ou o caminho do arquivo de mídia; o upload e o
+  armazenamento do arquivo são responsabilidade do serviço de mídia.
+- Alterar ou apagar um registro não altera os logs de pontuação já gerados.
+  Ao apagar, a relação de origem do log fica nula e os pontos permanecem
+  como histórico append-only.
 
 ---
 

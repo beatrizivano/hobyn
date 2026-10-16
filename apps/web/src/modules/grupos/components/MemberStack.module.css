@@ -1,0 +1,3 @@
+.stack { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.avatars { display: flex; }
+.avatars li + li { margin-left: calc(var(--space-2) * -1); }

@@ -1,0 +1,15 @@
+.sprite {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: calc(var(--px) * var(--cols));
+  height: calc(var(--px) * var(--rows));
+}
+/* O ponto-base fica fora da área visível; só as sombras (os pixels) aparecem. */
+.dot {
+  position: absolute;
+  left: calc(var(--px) * -1);
+  top: calc(var(--px) * -1);
+  width: var(--px);
+  height: var(--px);
+}

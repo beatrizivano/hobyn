@@ -104,12 +104,37 @@ Fluxo de uma requisição: **Route → Middleware(s) → Controller → Service 
 
 Módulos previstos inicialmente (poderão ser ajustados conforme o desenvolvimento avança):
 
-- **auth**: cadastro e login (RF1, RF2).
-- **usuarios**: dados de perfil do usuário autenticado.
-- **grupos**: criação, entrada, convite/compartilhamento, configuração do desafio e ranking (RF3, RF4, RF5, RF6, RF12, RF13).
-- **hobbies**: catálogo de hobbies e hobbies permitidos por grupo (RF8).
-- **registros**: registro de atividades, histórico e foto (RF9, RF10, RF11).
+- **auth**: cadastro, login, access tokens e renovação/revogação de sessões
+  (RF1, RF2).
+- **usuarios**: consulta/alteração de perfil e exclusão lógica da própria conta.
+- **grupos**: CRUD de grupos, associação de hobbies permitidos e autorização de admin (RF3, RF4, RF5, RF6, RF12, RF13).
+- **hobbies**: consulta do catálogo e dos hobbies permitidos por grupo (RF8).
+- **registros**: CRUD de registros de atividades e histórico (RF9, RF10, RF11).
 - **gamificacao**: cálculo de pontuação e conquistas (RF7, RF14).
+
+Rotas autenticadas implementadas pela API:
+
+| Método | Rota | Acesso |
+|---|---|---|
+| `GET`, `PATCH`, `DELETE` | `/api/users/me` | usuário autenticado; exclusão é lógica e revoga sessões |
+| `GET`, `POST` | `/api/groups` | grupos do usuário; criação adiciona o criador como admin |
+| `GET`, `PATCH`, `DELETE` | `/api/groups/:groupId` | leitura por membro ativo; alteração/exclusão por admin ativo |
+| `GET` | `/api/hobbies?groupId=...` | catálogo ativo, filtrado pelas permissões do grupo quando informado |
+| `GET`, `POST` | `/api/records` | leitura paginada por `groupId`; criação por membro ativo |
+| `GET`, `PATCH`, `DELETE` | `/api/records/:recordId` | leitura por membro ativo; alteração/exclusão pelo autor |
+
+O CRUD de registros grava, na mesma transação, os logs de pontuação
+configurados em `pontuacao`. A cooperação usa `bonus_cooperativo.valor` como
+multiplicador decimal (mínimo `1`); o total é arredondado para baixo. A edição
+ou exclusão de um registro não altera logs históricos. O limite diário salva
+o registro, mas omite os logs dos participantes que excederam o limite.
+
+Para carregar o catálogo inicial e as pontuações documentadas, execute
+`pnpm --filter api db:seed` na raiz. O seed não sobrescreve configurações de
+pontuação existentes. Para habilitar pontuação cooperativa, defina
+`BONUS_COOPERATIVO_MULTIPLICADOR` (por exemplo, `1.2`) no ambiente antes do
+seed; sem esse valor, o endpoint rejeita registros cooperativos pontuáveis
+com erro explícito até que o fator seja configurado.
 
 ### 3.2 Middlewares (`src/middlewares`)
 
@@ -129,6 +154,12 @@ Tudo relacionado à infraestrutura do banco de dados e ao ambiente de execução
 
 - `prisma/schema.prisma`: modelo de dados, espelhando as classes do diagrama (Usuário, Grupo, Registro, Hobby) e seus relacionamentos.
 - `src/infra/env.ts`: leitura e validação (com Zod) das variáveis de ambiente (string de conexão do banco, segredo do JWT, limites de upload, etc.), para que nenhuma variável de ambiente seja lida diretamente com `process.env` espalhada pelo código.
+
+Para subir o MySQL localmente, use `docker compose up -d mysql` na raiz do
+repositório. O serviço usa o MySQL 8.4, mantém os dados no volume `mysql_data`
+e publica a porta apenas em `127.0.0.1`. Os valores padrão do Compose e de
+`apps/api/.env.example` são exclusivos para desenvolvimento; configure
+credenciais seguras antes de qualquer uso compartilhado ou produção.
 
 ---
 

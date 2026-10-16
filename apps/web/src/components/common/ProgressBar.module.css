@@ -1,0 +1,11 @@
+.track {
+  height: 0.875rem;
+  padding: 1.5px;
+  border: var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--color-white);
+}
+.fill {
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--color-ink) 0 6px, transparent 6px 8px);
+}

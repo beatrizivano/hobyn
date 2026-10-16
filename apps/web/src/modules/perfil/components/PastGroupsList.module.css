@@ -1,0 +1,6 @@
+.list { display: flex; flex-direction: column; gap: var(--space-3); }
+.item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); box-shadow: var(--shadow-sm); }
+.name { font-weight: 700; }
+.date, .total { font-size: var(--text-sm); color: var(--color-ink-soft); font-family: var(--font-body); }
+.place { font-family: var(--font-display); font-size: var(--text-lg); white-space: nowrap; }
+.empty { font-size: var(--text-sm); color: var(--color-ink-soft); }

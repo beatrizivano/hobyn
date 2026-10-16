@@ -1,0 +1,63 @@
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+.label { font-size: var(--text-sm); font-weight: 700; padding: 0; }
+.optional { font-weight: 400; color: var(--color-ink-soft); }
+
+.control {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--text-md);
+}
+textarea.control { min-height: 6rem; resize: vertical; }
+.control:focus-visible { outline-offset: 2px; }
+.invalid { border-color: var(--color-coral); }
+
+.hint { font-size: var(--text-sm); color: var(--color-ink-soft); }
+.error { display: flex; align-items: flex-start; gap: var(--space-1); font-size: var(--text-sm); font-weight: 700; }
+.error svg { flex: none; margin-top: 2px; }
+
+.fieldset { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+
+/* Opções de escolha única (radio) e múltipla (chips) */
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.choice:has(:checked) { background: var(--color-ink); color: var(--color-white); }
+.choice:has(:focus-visible),
+.chip:has(:focus-visible) { outline: 2px solid var(--color-ink); outline-offset: 3px; }
+.choiceTitle { display: flex; align-items: center; gap: var(--space-2); font-weight: 700; }
+.choiceDescription { font-size: var(--text-sm); }
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  font-weight: 700;
+  cursor: pointer;
+}
+.chip:has(:checked) { background: var(--color-ink); color: var(--color-white); }
+.chip:has(:disabled) { opacity: 0.6; cursor: default; }
+
+.check { display: none; flex: none; }
+.choice:has(:checked) .check,
+.chip:has(:checked) .check { display: inline; }
+
+.photoActions { display: flex; flex-wrap: wrap; gap: var(--space-3); }

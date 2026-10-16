@@ -1,0 +1,10 @@
+.list {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  margin-inline: calc(var(--content-padding) * -1);
+  padding: 0 var(--content-padding) var(--space-3);
+  scroll-padding-inline: var(--content-padding);
+  scroll-snap-type: x proximity;
+}
+.item { flex: 0 0 9.5rem; scroll-snap-align: start; }

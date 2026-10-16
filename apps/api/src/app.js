@@ -1,11 +1,61 @@
-import { express } from "express";
-import { cors } from "cors";
-import { authRoutes } from "../"
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import { ZodError } from "zod";
+import { env } from "./infra/env.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+import groupRoutes from "./modules/groups/group.routes.js";
+import hobbyRoutes from "./modules/hobbies/hobby.routes.js";
+import recordRoutes from "./modules/records/record.routes.js";
+import userRoutes from "./modules/users/user.routes.js";
 
-export default function buildApp(){
-    const app = express();
-    app.use(cors());
-    app.use(express.json());;
-    
-    return app;
+export function buildApp() {
+  const app = express();
+
+  app.use(
+    cors({
+      origin: env.webOrigin,
+      credentials: true,
+    }),
+  );
+  app.use(express.json());
+  app.use(cookieParser());
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/groups", groupRoutes);
+  app.use("/api/hobbies", hobbyRoutes);
+  app.use("/api/records", recordRoutes);
+
+  app.use((error, req, res, next) => {
+    if (res.headersSent) {
+      return next(error);
+    }
+
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Dados inválidos.",
+        details: error.issues.map(({ path, message }) => ({
+          field: path.join("."),
+          message,
+        })),
+      });
+    }
+
+    if (
+      Number.isInteger(error.statusCode) &&
+      error.statusCode >= 400 &&
+      error.statusCode < 500
+    ) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
+
+    if (error.status === 400 && error.type === "entity.parse.failed") {
+      return res.status(400).json({ error: "Corpo JSON inválido." });
+    }
+
+    console.error(error);
+    return res.status(500).json({ error: "Erro interno do servidor." });
+  });
+
+  return app;
 }

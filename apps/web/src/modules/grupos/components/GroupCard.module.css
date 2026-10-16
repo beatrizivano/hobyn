@@ -1,0 +1,4 @@
+.link { display: flex; flex-direction: column; gap: 2px; text-decoration: none; }
+.photo { margin-bottom: var(--space-2); border-radius: var(--radius-md); box-shadow: var(--shadow); }
+.name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meta { font-size: var(--text-sm); color: var(--color-ink-soft); }

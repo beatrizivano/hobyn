@@ -1,0 +1,21 @@
+.card { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.card > :global([role="progressbar"]) { width: 100%; }
+.title { font-size: var(--text-lg); }
+.text { font-size: var(--text-sm); }
+.options { display: flex; flex-direction: column; gap: var(--space-3); width: 100%; }
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: var(--touch-target);
+  padding: var(--space-3);
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.option:active { transform: translate(2px, 2px); box-shadow: var(--shadow-pressed); }
+.optionName { font-weight: 700; }
+.optionText { font-size: var(--text-sm); }

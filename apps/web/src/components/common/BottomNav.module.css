@@ -1,0 +1,12 @@
+.nav {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-height: var(--nav-height);
+  padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom));
+  border-top: var(--border);
+  background: var(--color-paper);
+}

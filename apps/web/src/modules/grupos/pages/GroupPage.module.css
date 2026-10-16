@@ -1,0 +1,4 @@
+.page { display: flex; flex-direction: column; gap: var(--space-5); }
+.panel { display: flex; flex-direction: column; gap: var(--space-4); }
+.feed { display: flex; flex-direction: column; gap: var(--space-4); }
+.end { font-size: var(--text-sm); color: var(--color-ink-soft); text-align: center; }

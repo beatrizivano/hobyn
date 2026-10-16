@@ -1,0 +1,4 @@
+.card { display: flex; flex-direction: column; gap: var(--space-1); }
+.points { font-family: var(--font-display); font-size: var(--text-2xl); line-height: var(--leading-tight); }
+.detail { font-weight: 700; }
+.note { font-size: var(--text-sm); opacity: 0.85; }

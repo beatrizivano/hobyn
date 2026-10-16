@@ -6,3 +6,348 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+enum ModoPontuacaoGrupo {
+  registro
+  tempo
+}
+
+enum PapelGrupo {
+  admin
+  membro
+}
+
+enum ModoPontuacao {
+  fixo
+  porTempo
+}
+
+enum TipoDesafio {
+  grupo
+  aleatorio
+}
+
+enum TipoCriterioConquista {
+  contagem_registros
+  contagem_tempo
+  contagem_hobbies_distintos
+  contagem_cooperativos
+  streak_dias
+  contagem_grupos
+  contagem_grupos_criados
+  contagem_desafios
+  posicao_grupo
+  podio_encerramento_grupo
+  tempo_tela_streak
+}
+
+enum TipoObjetivoUsuario {
+  tempo_tela_maximo
+}
+
+model Usuario {
+  id           String    @id @default(cuid()) @db.VarChar(30)
+  nome         String    @db.VarChar(100)
+  sobrenome    String    @db.VarChar(100)
+  email        String    @unique @db.VarChar(255)
+  hashSenha    String    @db.VarChar(255)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  fotoDePerfil String?   @db.VarChar(2048)
+
+  gruposCriados      Grupo[]             @relation("GrupoCriador")
+  grupos             UsuarioGrupo[]
+  registrosCriados   Registro[]          @relation("RegistroAutor")
+  registros          RegistroUsuario[]
+  logsAtividades     LogAtividades[]
+  desafiosConcluidos DesafioConclusao[]
+  conquistas         UsuarioConquista[]
+  sessoes            Session[]
+  streak             StreakUsuario?
+  objetivos          ObjetivoUsuario[]
+  registrosTempoTela RegistroTempoTela[]
+
+  @@map("usuario")
+}
+
+model Session {
+  id               String    @id @default(cuid()) @db.VarChar(30)
+  userId           String    @db.VarChar(30)
+  refreshTokenHash String    @unique @db.Char(64)
+  expiresAt        DateTime
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  revokedAt        DateTime?
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+  @@map("sessao")
+}
+
+model Grupo {
+  id                     String             @id @default(cuid()) @db.VarChar(30)
+  nome                   String             @db.VarChar(150)
+  descricao              String             @db.Text
+  modoPontuacao          ModoPontuacaoGrupo
+  limiteRegistrosPorDia  Int?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  deletedAt              DateTime?
+  endsAt                 DateTime?
+  foto                   String?            @db.VarChar(2048)
+  criadoPorId            String             @db.VarChar(30)
+  fechamentoProcessadoEm DateTime?
+
+  criadoPor          Usuario            @relation("GrupoCriador", fields: [criadoPorId], references: [id], onDelete: Restrict)
+  usuarios           UsuarioGrupo[]
+  hobbiesPermitidos  GrupoHobby[]
+  desafiosProprios   Desafio[]          @relation("GrupoDonoDesafio")
+  desafios           GrupoDesafio[]
+  registros          Registro[]
+  logsAtividades     LogAtividades[]
+  desafiosConcluidos DesafioConclusao[]
+
+  @@index([criadoPorId])
+  @@index([endsAt, fechamentoProcessadoEm])
+  @@map("grupo")
+}
+
+model UsuarioGrupo {
+  id       String     @id @default(cuid()) @db.VarChar(30)
+  userId   String     @db.VarChar(30)
+  groupId  String     @db.VarChar(30)
+  papel    PapelGrupo @default(membro)
+  entrouEm DateTime   @default(now())
+  saiuEm   DateTime?
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+  grupo   Grupo   @relation(fields: [groupId], references: [id], onDelete: Restrict)
+
+  @@index([userId, groupId])
+  @@index([groupId, saiuEm, papel])
+  @@map("usuarioGrupo")
+}
+
+model Hobby {
+  id        String   @id @default(cuid()) @db.VarChar(30)
+  nome      String   @unique @db.VarChar(100)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gruposPermitidos GrupoHobby[]
+  registros        Registro[]
+  criterios        CriterioConquista[]
+
+  @@map("hobby")
+}
+
+model GrupoHobby {
+  groupId String @db.VarChar(30)
+  hobbyId String @db.VarChar(30)
+
+  grupo Grupo @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  hobby Hobby @relation(fields: [hobbyId], references: [id], onDelete: Restrict)
+
+  @@id([groupId, hobbyId])
+  @@map("grupoHobby")
+}
+
+model Pontuacao {
+  id                  String        @id @default(cuid()) @db.VarChar(30)
+  nome                String        @db.VarChar(100)
+  modo                ModoPontuacao
+  valor               Decimal       @db.Decimal(10, 2)
+  unidadeTempoMinutos Int?
+
+  logsAtividades LogAtividades[]
+  desafios       Desafio[]
+
+  @@unique([nome, modo])
+  @@map("pontuacao")
+}
+
+model Registro {
+  id             String   @id @default(cuid()) @db.VarChar(30)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  data           DateTime @db.Date
+  duracaoMinutos Int
+  foto           String   @db.VarChar(2048)
+  groupId        String   @db.VarChar(30)
+  hobbyId        String   @db.VarChar(30)
+  descricao      String   @db.Text
+  criadoPorId    String   @db.VarChar(30)
+
+  grupo          Grupo             @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  hobby          Hobby             @relation(fields: [hobbyId], references: [id], onDelete: Restrict)
+  criadoPor      Usuario           @relation("RegistroAutor", fields: [criadoPorId], references: [id], onDelete: Restrict)
+  usuarios       RegistroUsuario[]
+  logsAtividades LogAtividades[]
+
+  @@index([groupId, data])
+  @@index([hobbyId])
+  @@index([criadoPorId])
+  @@map("registro")
+}
+
+model RegistroUsuario {
+  registroId String @db.VarChar(30)
+  userId     String @db.VarChar(30)
+
+  registro Registro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  usuario  Usuario  @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@id([registroId, userId])
+  @@index([userId, registroId])
+  @@map("registroUsuario")
+}
+
+model LogAtividades {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  userId       String   @db.VarChar(30)
+  groupId      String   @db.VarChar(30)
+  pontuacaoId  String   @db.VarChar(30)
+  pontosGanhos Int
+  registroId   String?  @db.VarChar(30)
+  desafioId    String?  @db.VarChar(30)
+  data         DateTime @default(now())
+
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  grupo     Grupo     @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  pontuacao Pontuacao @relation(fields: [pontuacaoId], references: [id], onDelete: Restrict)
+  registro  Registro? @relation(fields: [registroId], references: [id], onDelete: SetNull)
+  desafio   Desafio?  @relation(fields: [desafioId], references: [id], onDelete: SetNull)
+
+  @@index([groupId, userId, data])
+  @@index([registroId])
+  @@index([desafioId])
+  @@map("logAtividades")
+}
+
+model Desafio {
+  id          String      @id @default(cuid()) @db.VarChar(30)
+  nome        String      @db.VarChar(150)
+  descricao   String      @db.Text
+  tipo        TipoDesafio
+  groupId     String?     @db.VarChar(30)
+  pontuacaoId String      @db.VarChar(30)
+  expiraEm    DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  grupoDono      Grupo?             @relation("GrupoDonoDesafio", fields: [groupId], references: [id], onDelete: Restrict)
+  grupos         GrupoDesafio[]
+  pontuacao      Pontuacao          @relation(fields: [pontuacaoId], references: [id], onDelete: Restrict)
+  conclusoes     DesafioConclusao[]
+  logsAtividades LogAtividades[]
+
+  @@index([groupId, tipo])
+  @@index([expiraEm])
+  @@map("desafio")
+}
+
+model GrupoDesafio {
+  groupId   String @db.VarChar(30)
+  desafioId String @db.VarChar(30)
+
+  grupo   Grupo   @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  desafio Desafio @relation(fields: [desafioId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, desafioId])
+  @@map("grupoDesafio")
+}
+
+model DesafioConclusao {
+  id          String   @id @default(cuid()) @db.VarChar(30)
+  userId      String   @db.VarChar(30)
+  desafioId   String   @db.VarChar(30)
+  groupId     String   @db.VarChar(30)
+  concluidoEm DateTime @default(now())
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+  desafio Desafio @relation(fields: [desafioId], references: [id], onDelete: Restrict)
+  grupo   Grupo   @relation(fields: [groupId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, desafioId, groupId])
+  @@index([groupId, concluidoEm])
+  @@map("desafioConclusao")
+}
+
+model Conquista {
+  id        String @id @default(cuid()) @db.VarChar(30)
+  nome      String @unique @db.VarChar(100)
+  descricao String @db.Text
+
+  criterios CriterioConquista[]
+  usuarios  UsuarioConquista[]
+
+  @@map("conquista")
+}
+
+model CriterioConquista {
+  id          String                @id @default(cuid()) @db.VarChar(30)
+  conquistaId String                @db.VarChar(30)
+  tipo        TipoCriterioConquista
+  hobbyId     String?               @db.VarChar(30)
+  valor       Int
+
+  conquista Conquista @relation(fields: [conquistaId], references: [id], onDelete: Restrict)
+  hobby     Hobby?    @relation(fields: [hobbyId], references: [id], onDelete: Restrict)
+
+  @@index([conquistaId, tipo])
+  @@index([hobbyId])
+  @@map("criterioConquista")
+}
+
+model UsuarioConquista {
+  userId        String   @db.VarChar(30)
+  conquistaId   String   @db.VarChar(30)
+  conquistadoEm DateTime @default(now())
+
+  usuario   Usuario   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  conquista Conquista @relation(fields: [conquistaId], references: [id], onDelete: Restrict)
+
+  @@id([userId, conquistaId])
+  @@map("usuarioConquista")
+}
+
+model StreakUsuario {
+  userId               String   @id @db.VarChar(30)
+  streakRecorde        Int      @default(0)
+  ultimoDiaComRegistro DateTime @db.Date
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("streakUsuario")
+}
+
+model ObjetivoUsuario {
+  id           String              @id @default(cuid()) @db.VarChar(30)
+  userId       String              @db.VarChar(30)
+  tipo         TipoObjetivoUsuario
+  valorMinutos Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, tipo])
+  @@map("objetivoUsuario")
+}
+
+model RegistroTempoTela {
+  id        String   @id @default(cuid()) @db.VarChar(30)
+  userId    String   @db.VarChar(30)
+  data      DateTime @db.Date
+  minutos   Int
+  createdAt DateTime @default(now())
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, data])
+  @@map("registroTempoTela")
+}

@@ -1,0 +1,17 @@
+.card {
+  min-width: 0;
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow);
+}
+.padded { padding: var(--space-4); }
+.surface { background: var(--color-surface); }
+.white { background: var(--color-white); }
+.dotted {
+  border-style: dotted;
+  background-color: var(--color-surface);
+  background-image: var(--texture-dots);
+  background-size: var(--texture-dots-size);
+}
+.dark { background: var(--color-ink); color: var(--color-white); }

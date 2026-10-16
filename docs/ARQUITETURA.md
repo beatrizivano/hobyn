@@ -104,7 +104,8 @@ Fluxo de uma requisição: **Route → Middleware(s) → Controller → Service 
 
 Módulos previstos inicialmente (poderão ser ajustados conforme o desenvolvimento avança):
 
-- **auth**: cadastro e login (RF1, RF2).
+- **auth**: cadastro, login, access tokens e renovação/revogação de sessões
+  (RF1, RF2).
 - **usuarios**: dados de perfil do usuário autenticado.
 - **grupos**: criação, entrada, convite/compartilhamento, configuração do desafio e ranking (RF3, RF4, RF5, RF6, RF12, RF13).
 - **hobbies**: catálogo de hobbies e hobbies permitidos por grupo (RF8).

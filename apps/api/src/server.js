@@ -1,12 +1,8 @@
-import { buildApp } from './app';
+import { buildApp } from "./app.js";
+import { env } from "./infra/env.js";
 
 const app = buildApp();
-try {
-    await app.listen({
-        port: 3030,
-        host: "0.0.0.0"
-    });
 
-} catch (err) {
-    app.log.err(err)
-}
+app.listen(env.port, "0.0.0.0", () => {
+  console.info(`API ouvindo na porta ${env.port}.`);
+});

@@ -32,6 +32,30 @@ desafios, conquistas) estão detalhadas em
 
 ---
 
+## `sessao`
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| id | PK | |
+| userId | FK `usuario` | |
+| refreshTokenHash | string, único | SHA-256 do refresh token; o token original nunca é persistido |
+| expiresAt | datetime | validade da sessão |
+| createdAt / updatedAt | datetime | auditoria da sessão e da rotação do token |
+| revokedAt | datetime? | preenchido no logout |
+
+**Comportamentos**
+- Cada login cria uma sessão independente. O refresh token é entregue em
+  cookie `httpOnly`, mas somente seu hash é salvo no banco.
+- Ao renovar a sessão, o refresh token anterior é invalidado e substituído
+  por um novo na mesma linha. Uma sessão expirada ou revogada não pode ser
+  renovada.
+- O access token é um JWT de curta duração e não é persistido; endpoints
+  autenticados o recebem no header `Authorization: Bearer`.
+- Usuários com `deletedAt` definido não podem renovar a sessão nem acessar
+  endpoints autenticados, mesmo que ainda tenham sessões não expiradas.
+
+---
+
 ## `grupo`
 
 | Campo | Tipo | Observação |

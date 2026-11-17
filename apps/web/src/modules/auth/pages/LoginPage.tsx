@@ -19,6 +19,7 @@ export function LoginPage() {
   }
   return <div className={styles.page}><AuthHeader /><h1 className={styles.title}>Entrar</h1>
     {location.state?.from && <p>Entre para continuar.</p>}
+    {location.state?.passwordChanged && <p role="status">Senha alterada. Entre novamente em sua conta.</p>}
     <LoginForm error={error} onSubmit={handleSubmit} />
     <p className={styles.switch}>Ainda não tem conta? <Link to="/cadastro" state={{ from: target }}>Criar conta</Link></p>
   </div>;

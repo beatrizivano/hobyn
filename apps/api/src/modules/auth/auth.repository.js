@@ -8,6 +8,7 @@ const publicUserSelect = {
   fotoDePerfil: true,
   createdAt: true,
   updatedAt: true,
+  emailVerificadoEm: true,
 };
 
 export const authRepository = {
@@ -29,6 +30,9 @@ export const authRepository = {
 
       return { user, sessionId: session.id };
     });
+  },
+  createUser(userData) {
+    return prisma.usuario.create({ data: userData, select: publicUserSelect });
   },
 
   createSession({ userId, refreshTokenHash, expiresAt }) {
@@ -64,6 +68,7 @@ export const authRepository = {
             fotoDePerfil: true,
             createdAt: true,
             updatedAt: true,
+            emailVerificadoEm: true,
             deletedAt: true,
           },
         },

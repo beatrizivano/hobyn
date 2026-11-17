@@ -16,10 +16,9 @@ function sessionExpiresAt(now = new Date()) {
 
 async function createTokensForUser(user) {
   const refreshToken = refreshTokenService.generate();
-  const accessToken = accessTokenService.generate(user.id);
   const now = new Date();
 
-  await authRepository.createSession({
+  const session = await authRepository.createSession({
     userId: user.id,
     refreshTokenHash: refreshTokenService.hash(refreshToken),
     expiresAt: sessionExpiresAt(now),
@@ -27,20 +26,28 @@ async function createTokensForUser(user) {
 
   return {
     user,
-    accessToken,
+    accessToken: accessTokenService.generate(user.id, session.id),
     refreshToken,
   };
 }
 
 export const authService = {
+  async getSessionUser(userId, sessionId) {
+    const user = await authRepository.findActiveSessionUser(userId, sessionId, new Date());
+    if (!user) {
+      throw new AuthError("Sessão inválida ou expirada.");
+    }
+    return user;
+  },
+
   async register(data) {
     const hashSenha = await bcrypt.hash(data.password, passwordSaltRounds);
     const refreshToken = refreshTokenService.generate();
     const now = new Date();
-    let user;
+    let created;
 
     try {
-      user = await authRepository.createUserWithSession({
+      created = await authRepository.createUserWithSession({
         userData: {
           nome: data.nome,
           sobrenome: data.sobrenome,
@@ -58,8 +65,8 @@ export const authService = {
     }
 
     return {
-      user,
-      accessToken: accessTokenService.generate(user.id),
+      user: created.user,
+      accessToken: accessTokenService.generate(created.user.id, created.sessionId),
       refreshToken,
     };
   },
@@ -108,7 +115,7 @@ export const authService = {
 
     const refreshToken = refreshTokenService.generate();
     const refreshTokenHash = refreshTokenService.hash(refreshToken);
-    const accessToken = accessTokenService.generate(session.usuario.id);
+    const accessToken = accessTokenService.generate(session.usuario.id, session.id);
     const expiresAt = sessionExpiresAt(now);
     const updated = await authRepository.rotateSession({
       id: session.id,

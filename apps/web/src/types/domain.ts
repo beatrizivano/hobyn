@@ -1,7 +1,5 @@
-/**
- * Tipos de apresentação usados pelas telas.
- * TEMPORÁRIO: quando os schemas Zod de `packages/shared` cobrirem estas entidades,
- * substituir por `z.infer<typeof ...>` importado de `shared` (ver ARQUITETURA.md, seção 2).
+/** Modelos de apresentação. Os services convertem os DTOs da API para estas telas.
+ * Schemas de entrada e validações são compartilhados pelo pacote local `shared`.
  */
 
 export type ModoPontuacao = 'registro' | 'tempo';
@@ -25,7 +23,6 @@ export interface Hobby {
 export interface Grupo {
   id: string;
   nome: string;
-  /** RF3 pede descrição, mas MODELO_DE_DADOS.md ainda não tem este campo em `grupo`. */
   descricao: string | null;
   foto: string | null;
   modoPontuacao: ModoPontuacao;
@@ -35,7 +32,8 @@ export interface Grupo {
   hobbiesPermitidos: Hobby[];
   membros: Membro[];
   /** RF4/RF12 pedem convite por código, ainda sem campo no modelo. */
-  codigoConvite: string;
+  codigoConvite: string | null;
+  meuPapel?: 'admin' | 'membro';
 }
 
 export interface Registro {
@@ -49,8 +47,8 @@ export interface Registro {
   descricao: string;
   /** Mais de um autor = registro cooperativo. */
   autores: Membro[];
-  /** Reações não existem no modelo de dados ainda; presentes no design. */
-  curtidas: number;
+  /** Nulo enquanto a API não oferecer reações. */
+  curtidas: number | null;
   createdAt: string;
 }
 

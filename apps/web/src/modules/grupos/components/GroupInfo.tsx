@@ -15,6 +15,7 @@ export function GroupInfo({ grupo }: GroupInfoProps) {
   const encerrado = grupo.endsAt !== null && new Date(grupo.endsAt) < new Date();
 
   async function shareInvite() {
+    if (!grupo.codigoConvite) return;
     const url = `${window.location.origin}/grupos/entrar?codigo=${encodeURIComponent(grupo.codigoConvite)}`;
     try {
       if (navigator.share) {
@@ -36,7 +37,7 @@ export function GroupInfo({ grupo }: GroupInfoProps) {
         {grupo.endsAt && <Tag>{encerrado ? 'Encerrado' : `Termina em ${formatShortDate(grupo.endsAt)}`}</Tag>}
       </div>
       {grupo.descricao && <p className={styles.description}>{grupo.descricao}</p>}
-      {!encerrado && (
+      {!encerrado && grupo.meuPapel === 'admin' && grupo.codigoConvite && (
         <Button icon={<Share2 size={18} aria-hidden="true" />} onClick={shareInvite}>
           Compartilhar convite
         </Button>

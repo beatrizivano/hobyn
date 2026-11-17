@@ -1,47 +1,31 @@
 import { useState, type FormEvent } from 'react';
-import { CircleAlert } from 'lucide-react';
+import { authSchemas } from 'shared';
 import { Button, TextField } from '../../../components/common';
 import styles from './AuthForm.module.css';
-
-export interface LoginValues {
-  email: string;
-  senha: string;
-}
-
-interface LoginFormProps {
-  /** Erro vindo do servidor. Sempre genérico: não diz se o e-mail ou a senha está errado. */
-  error?: string;
-  onSubmit: (values: LoginValues) => void | Promise<void>;
-}
-
-// TODO: trocar as validações abaixo pelo schema de login de `packages/shared` (ARQUITETURA.md, regra 1).
-export function LoginForm({ error, onSubmit }: LoginFormProps) {
+export interface LoginValues { email: string; senha: string }
+interface Props { error?: string; onSubmit: (values: LoginValues) => void | Promise<void> }
+export function LoginForm({ error, onSubmit }: Props) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [errors, setErrors] = useState<{ email?: string; senha?: string }>({});
-
-  async function handleSubmit(event: FormEvent) {
+  const [submitting, setSubmitting] = useState(false);
+  async function submit(event: FormEvent) {
     event.preventDefault();
-    const next = {
-      email: /^\S+@\S+\.\S+$/.test(email) ? undefined : 'Informe um e-mail válido.',
-      senha: senha ? undefined : 'Informe sua senha.',
-    };
-    setErrors(next);
-    if (next.email || next.senha) return;
-    await onSubmit({ email: email.trim(), senha });
+    if (submitting) return;
+    const result = authSchemas.login.safeParse({ email, password: senha });
+    if (!result.success) {
+      const next: typeof errors = {};
+      for (const issue of result.error.issues) next[issue.path[0] === 'password' ? 'senha' : 'email'] = issue.message;
+      setErrors(next); return;
+    }
+    setErrors({}); setSubmitting(true);
+    try { await onSubmit({ email: result.data.email, senha: result.data.password }); }
+    finally { setSubmitting(false); }
   }
-
-  return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      {error && (
-        <p className={styles.formError} role="alert">
-          <CircleAlert size={16} aria-hidden="true" />
-          {error}
-        </p>
-      )}
-      <TextField label="E-mail" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
-      <TextField label="Senha" type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} error={errors.senha} />
-      <Button type="submit" variant="primary" fullWidth>Entrar</Button>
-    </form>
-  );
+  return <form className={styles.form} onSubmit={submit} noValidate>
+    {error && <p className={styles.formError} role="alert">{error}</p>}
+    <TextField label="E-mail" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} error={errors.email} />
+    <TextField label="Senha" type="password" autoComplete="current-password" value={senha} onChange={event => setSenha(event.target.value)} error={errors.senha} />
+    <Button type="submit" variant="primary" fullWidth disabled={submitting}>{submitting ? 'Entrando…' : 'Entrar'}</Button>
+  </form>;
 }

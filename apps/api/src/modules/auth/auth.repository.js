@@ -21,11 +21,12 @@ export const authRepository = {
         select: publicUserSelect,
       });
 
-      await transaction.session.create({
+      const session = await transaction.session.create({
         data: { userId: user.id, refreshTokenHash, expiresAt },
+        select: { id: true },
       });
 
-      return user;
+      return { user, sessionId: session.id };
     });
   },
 
@@ -33,6 +34,20 @@ export const authRepository = {
     return prisma.session.create({
       data: { userId, refreshTokenHash, expiresAt },
     });
+  },
+
+  async findActiveSessionUser(userId, sessionId, now) {
+    const session = await prisma.session.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: now },
+        usuario: { deletedAt: null },
+      },
+      select: { usuario: { select: publicUserSelect } },
+    });
+    return session?.usuario ?? null;
   },
 
   findSessionByRefreshTokenHash(refreshTokenHash) {

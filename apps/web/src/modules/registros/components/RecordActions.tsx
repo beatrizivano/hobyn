@@ -5,7 +5,7 @@ import styles from './RecordActions.module.css';
 
 interface RecordActionsProps {
   recordId: string;
-  curtidas: number;
+  curtidas: number | null;
 }
 
 /** Curtir e compartilhar. Reações ainda não existem no modelo de dados (ver DESIGN_SYSTEM.md). */
@@ -29,14 +29,14 @@ export function RecordActions({ recordId, curtidas }: RecordActionsProps) {
 
   return (
     <div className={styles.actions}>
-      <Button
+      {curtidas !== null && <Button
         aria-pressed={liked}
         icon={<Heart size={18} aria-hidden="true" fill={liked ? 'currentColor' : 'none'} />}
         onClick={() => setLiked((value) => !value)}
       >
         {curtidas + (liked ? 1 : 0)}
         <span className="sr-only"> curtidas</span>
-      </Button>
+      </Button>}
       <Button fullWidth icon={<Share2 size={18} aria-hidden="true" />} onClick={share}>
         Compartilhar
       </Button>

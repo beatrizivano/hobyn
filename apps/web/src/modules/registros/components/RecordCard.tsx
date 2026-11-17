@@ -24,11 +24,11 @@ export function RecordCard({ registro }: RecordCardProps) {
         <PhotoFrame src={registro.foto} ratio="16 / 7" />
         <div className={styles.footer}>
           <span>{formatDuration(registro.duracaoMinutos)} · {formatRelativeTime(registro.createdAt)}</span>
-          <span className={styles.likes}>
+          {registro.curtidas !== null && <span className={styles.likes}>
             <Heart size={14} aria-hidden="true" />
             {registro.curtidas}
             <span className="sr-only"> curtidas</span>
-          </span>
+          </span>}
         </div>
       </Link>
     </Card>

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { prisma } from "../clients/prisma.client.js";
+import { authService } from "../modules/auth/auth.service.js";
 import { accessTokenService } from "../modules/auth/access-token.service.js";
 import { AuthError } from "../modules/auth/auth.error.js";
 
@@ -12,8 +12,9 @@ export async function authenticate(req, res, next) {
   }
 
   let userId;
+  let sessionId;
   try {
-    ({ userId } = accessTokenService.verify(match[1]));
+    ({ userId, sessionId } = accessTokenService.verify(match[1]));
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       throw new AuthError("Token de acesso inválido ou expirado.");
@@ -21,22 +22,9 @@ export async function authenticate(req, res, next) {
     throw error;
   }
 
-  const user = await prisma.usuario.findFirst({
-    where: { id: userId, deletedAt: null },
-    select: {
-      id: true,
-      nome: true,
-      sobrenome: true,
-      email: true,
-      fotoDePerfil: true,
-      createdAt: true,
-    },
-  });
-
-  if (!user) {
-    throw new AuthError("Token de acesso inválido ou expirado.");
-  }
+  const user = await authService.getSessionUser(userId, sessionId);
 
   req.authUser = user;
+  req.authSessionId = sessionId;
   return next();
 }

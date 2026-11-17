@@ -1,27 +1,26 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { authService } from '../../../services/auth.service';
+import { errorMessage } from '../../../services/http';
 import { AuthHeader } from '../components/AuthHeader';
 import { LoginForm, type LoginValues } from '../components/LoginForm';
 import styles from './AuthPage.module.css';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState<string>();
-
-  async function handleSubmit(_values: LoginValues) {
-    // TODO: auth.service.login(_values). Em falha: setError('E-mail ou senha incorretos.')
+  async function handleSubmit(values: LoginValues) {
     setError(undefined);
-    navigate('/');
+    try {
+      await authService.login(values);
+      const target = location.state?.from;
+      navigate(typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') ? target : '/', { replace: true });
+    } catch (failure) { setError(errorMessage(failure)); }
   }
-
-  return (
-    <div className={styles.page}>
-      <AuthHeader />
-      <h1 className={styles.title}>Entrar</h1>
-      <LoginForm error={error} onSubmit={handleSubmit} />
-      <p className={styles.switch}>
-        Ainda não tem conta? <Link to="/cadastro">Criar conta</Link>
-      </p>
-    </div>
-  );
+  return <div className={styles.page}><AuthHeader /><h1 className={styles.title}>Entrar</h1>
+    {location.state?.from && <p>Entre para continuar.</p>}
+    <LoginForm error={error} onSubmit={handleSubmit} />
+    <p className={styles.switch}>Ainda não tem conta? <Link to="/cadastro">Criar conta</Link></p>
+  </div>;
 }

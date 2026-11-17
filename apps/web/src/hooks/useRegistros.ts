@@ -1,12 +1,4 @@
-import { hobbyCatalogo, registros } from '../mocks/data';
-import type { Hobby, Registro } from '../types/domain';
-import { ready, type QueryState } from './queryState';
-
-export function useRecord(recordId: string): QueryState<Registro> {
-  return ready(registros.find((r) => r.id === recordId));
-}
-
-/** Catálogo global (inclui "Outro"). O filtro por grupo é feito pelo formulário. */
-export function useHobbyCatalog(): QueryState<Hobby[]> {
-  return ready(hobbyCatalogo);
-}
+import { useQuery } from '@tanstack/react-query';
+import { recordsService } from '../services/records.service';
+export function useRecord(id: string) { return useQuery({ queryKey: ['records', id], queryFn: ({ signal }) => recordsService.get(id, signal), enabled: !!id }); }
+export function useHobbyCatalog() { return useQuery({ queryKey: ['hobbies'], queryFn: ({ signal }) => recordsService.catalog(signal) }); }

@@ -1,8 +1,8 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { NovoGrupoInput, RankingEntry } from '../types/domain';
+import type { NovoGrupoInput } from '../types/domain';
 import { groupsService } from '../services/groups.service';
 import { recordsService } from '../services/records.service';
-import type { QueryState } from './queryState';
+import { rankingsService } from '../services/rankings.service';
 
 export function useGroups() { return useQuery({ queryKey: ['groups'], queryFn: ({ signal }) => groupsService.list(signal) }); }
 export function useGroup(id: string) { return useQuery({ queryKey: ['groups', id], queryFn: ({ signal }) => groupsService.get(id, signal), enabled: !!id }); }
@@ -22,6 +22,6 @@ export function useGroupFeed(groupId: string) {
   });
   return { ...query, data: query.data?.pages.flatMap(page => page.items) };
 }
-export function useGroupRanking(_groupId: string): QueryState<RankingEntry[]> {
-  return { data: undefined, isLoading: false, error: new Error('O ranking estará disponível após a conclusão da consulta de pontuação.') };
+export function useGroupRanking(groupId: string, enabled = true) {
+  return useQuery({ queryKey: ['groups', groupId, 'ranking'], queryFn: ({ signal }) => rankingsService.list(groupId, signal), enabled: enabled && !!groupId });
 }

@@ -17,4 +17,5 @@ test("perfil rejeita atualização vazia ou campos privados", () => {
     userSchemas.updateProfile.safeParse({ hashSenha: "nao-pode" }).success,
     false,
   );
+  assert.equal(userSchemas.updateFields.safeParse({ fotoDePerfil: "profiles/injetada.webp" }).success, false);
 });

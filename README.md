@@ -89,6 +89,24 @@ corepack pnpm typecheck
 incluindo refresh simultâneo, expiração, falha de rede e encerramento de sessão.
 `typecheck` verifica os arquivos TS/TSX. O lint atual cobre JS/JSX.
 
+Para validar fotos de perfil e grupo com o MySQL local ligado:
+
+```powershell
+corepack pnpm test:profile-group-photos
+```
+
+O fluxo privado, a substituição e a limpeza de arquivos estão documentados em
+[Fotos de perfil e grupo](docs/FOTOS_PERFIL_GRUPO.md).
+
+Para validar o ranking com o MySQL local ligado:
+
+```powershell
+corepack pnpm test:rankings
+```
+
+A classificação soma os logs dos membros ativos e está documentada em
+[Ranking dos grupos](docs/RANKING.md).
+
 Para validar convites com o MySQL local ligado:
 
 ```powershell
@@ -108,6 +126,16 @@ Esse teste cria seu próprio servidor HTTP temporário em uma porta livre. Confe
 revogação imediata após logout, independência entre logins, sessão vencida,
 associação entre sessão e usuário e exclusão de conta. As contas de teste são
 excluídas logicamente ao finalizar.
+
+Para validar ativação e mudanças de senha:
+
+```powershell
+corepack pnpm test:password-email
+```
+
+Em desenvolvimento, os links são exibidos no terminal da API. O SMTP genérico,
+o remetente `noreply` e as regras de ativação estão documentados em
+[Ativação por e-mail e senhas](docs/AUTENTICACAO_EMAIL_E_SENHA.md).
 
 Com API e Vite iniciados, execute também:
 
@@ -143,16 +171,15 @@ Melhorias opcionais de autenticação estão em
 
 
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
-edição de nome/sobrenome, listagem/criação/detalhe/configuração de grupos,
-emissão e entrada por convite, catálogo de hobbies, criação multipart, feed paginado, detalhe, edição e exclusão
-dos registros, com leitura privada das fotos.
+edição de perfil com foto, listagem/criação/detalhe/configuração de grupos com foto,
+emissão e entrada por convite, catálogo de hobbies, criação multipart, feed paginado,
+detalhe, edição e exclusão dos registros, com leitura privada das fotos, além do
+ranking calculado por grupo.
 As mutações de grupos invalidam o cache; logout e troca de identidade limpam
 os dados privados das queries. Não são usados dados dos mocks nas telas integradas.
 
 Ainda pendentes para fechar o fluxo do MVP:
 
-- Envio de fotos de perfil/grupo; o upload de fotos dos registros já está implementado.
-- Consulta de ranking e sua integração na web.
 - Testes E2E no navegador com dois usuários, responsividade e falhas de rede reais.
 
 Conquistas, desafios e estatísticas avançadas continuam fora deste recorte.
@@ -163,10 +190,10 @@ Para publicar o build, configure um reverse proxy para `/api` ou informe a URL
 pública da API em `VITE_API_BASE_URL` no momento do build e ajuste CORS/cookies.
 Variáveis `VITE_*` são públicas e não devem conter segredos.
 
-## Fotos dos registros
+## Armazenamento de fotos
 
-JPEG, PNG e WebP de até 10 MiB são processados e armazenados em
-`apps/api/storage/uploads`. O diretório é persistente e ignorado pelo Git;
+Fotos de registros, perfis e grupos em JPEG, PNG ou WebP, com até 10 MiB, são
+processadas e armazenadas em `apps/api/storage/uploads`. O diretório é persistente e ignorado pelo Git;
 a variável opcional `UPLOAD_DIR` permite mudar seu local. Faça backup desse
 diretório junto com o banco. Não é necessária nova migration.
 

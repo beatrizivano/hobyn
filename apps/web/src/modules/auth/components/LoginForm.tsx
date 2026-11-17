@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { authSchemas } from 'shared';
 import { Button, TextField } from '../../../components/common';
+import { Link } from 'react-router-dom';
 import styles from './AuthForm.module.css';
 export interface LoginValues { email: string; senha: string }
 interface Props { error?: string; onSubmit: (values: LoginValues) => void | Promise<void> }
@@ -26,6 +27,7 @@ export function LoginForm({ error, onSubmit }: Props) {
     {error && <p className={styles.formError} role="alert">{error}</p>}
     <TextField label="E-mail" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} error={errors.email} />
     <TextField label="Senha" type="password" autoComplete="current-password" value={senha} onChange={event => setSenha(event.target.value)} error={errors.senha} />
+    <Link to="/esqueci-a-senha">Esqueci minha senha</Link>
     <Button type="submit" variant="primary" fullWidth disabled={submitting}>{submitting ? 'Entrando…' : 'Entrar'}</Button>
   </form>;
 }

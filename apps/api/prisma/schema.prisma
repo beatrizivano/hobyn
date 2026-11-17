@@ -45,6 +45,12 @@ enum TipoObjetivoUsuario {
   tempo_tela_maximo
 }
 
+enum TipoTokenEmail {
+  ativacao_conta
+  recuperacao_senha
+  alteracao_senha
+}
+
 model Usuario {
   id           String    @id @default(cuid()) @db.VarChar(30)
   nome         String    @db.VarChar(100)
@@ -55,6 +61,7 @@ model Usuario {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
   fotoDePerfil String?   @db.VarChar(2048)
+  emailVerificadoEm DateTime?
 
   gruposCriados      Grupo[]             @relation("GrupoCriador")
   grupos             UsuarioGrupo[]
@@ -68,8 +75,25 @@ model Usuario {
   objetivos          ObjetivoUsuario[]
   registrosTempoTela RegistroTempoTela[]
   convitesEmitidos    ConviteGrupo[]
+  tokensEmail         TokenEmail[]
 
   @@map("usuario")
+}
+
+model TokenEmail {
+  id         String         @id @default(cuid()) @db.VarChar(30)
+  userId     String         @db.VarChar(30)
+  tipo       TipoTokenEmail
+  tokenHash  String         @unique @db.Char(64)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  usuario Usuario @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, tipo, consumedAt])
+  @@index([expiresAt])
+  @@map("tokenEmail")
 }
 
 model Session {

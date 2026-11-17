@@ -14,7 +14,10 @@ export function RegisterPage() {
   const target = safeReturnPath(location.state?.from);
   async function handleSubmit(values: RegisterValues) {
     setError(undefined);
-    try { await authService.register(values); navigate(target, { replace: true }); }
+    try {
+      const result = await authService.register(values);
+      navigate(result.activationRequired ? `/ativacao-enviada?email=${encodeURIComponent(result.email)}` : target, { replace: true });
+    }
     catch (failure) { setError(errorMessage(failure)); }
   }
   return <div className={styles.page}><AuthHeader /><h1 className={styles.title}>Criar conta</h1>

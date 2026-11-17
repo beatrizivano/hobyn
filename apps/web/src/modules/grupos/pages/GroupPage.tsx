@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { Button, ButtonLink, ScreenHeader, SegmentedControl, StateMessage } from '../../../components/common';
-import { useGroup, useGroupFeed, useUpdateGroup } from '../../../hooks/useGrupos';
+import { Button, ButtonLink, PhotoFrame, ScreenHeader, SegmentedControl, StateMessage } from '../../../components/common';
+import { useGroup, useGroupFeed, useGroupRanking, useUpdateGroup } from '../../../hooks/useGrupos';
 import { RecordCard } from '../../registros';
 import { useHobbyCatalog } from '../../../hooks/useRegistros';
 import type { NovoGrupoInput } from '../../../types/domain';
 import { GroupForm } from '../components/GroupForm';
 import { GroupInfo } from '../components/GroupInfo';
 import { GroupInvitePanel } from '../components/GroupInvitePanel';
+import { RankingList } from '../components/RankingList';
+import { useSession } from '../../../contexts/AuthContext';
 import styles from './GroupPage.module.css';
 type Tab = 'feed' | 'ranking';
 export function GroupPage() {
@@ -16,6 +18,8 @@ export function GroupPage() {
   const group = useGroup(groupId);
   const feed = useGroupFeed(groupId);
   const [tab, setTab] = useState<Tab>('feed');
+  const ranking = useGroupRanking(groupId, tab === 'ranking');
+  const { session } = useSession();
   const [editing, setEditing] = useState(false);
   const catalog = useHobbyCatalog();
   const update = useUpdateGroup(groupId);
@@ -31,12 +35,15 @@ export function GroupPage() {
   return <div className={styles.page}><ScreenHeader title={grupo.nome} subtitle={`${grupo.membros.length} membros`} backTo="/" />
     {typeof state?.recordMessage === 'string' && <p role="status">{state.recordMessage}</p>}
     {typeof state?.inviteMessage === 'string' && <p role="status">{state.inviteMessage}</p>}
+    {grupo.foto && <PhotoFrame src={grupo.foto} alt={`Foto do grupo ${grupo.nome}`} ratio="16 / 7" />}
     <GroupInfo grupo={grupo} />
     {grupo.meuPapel === 'admin' && !encerrado && <GroupInvitePanel groupId={grupo.id} />}
     {grupo.meuPapel === 'admin' && !encerrado && <Button onClick={() => setEditing(value => !value)}>{editing ? 'Cancelar edição' : 'Configurar grupo'}</Button>}
     {editing && (catalog.isLoading ? <StateMessage kind="loading" /> : catalog.error || !catalog.data ? <StateMessage kind="error">Não foi possível carregar os hobbies.</StateMessage> : <GroupForm catalogo={catalog.data} initialValues={grupo} onSubmit={save} error={update.error?.message} />)}
     <SegmentedControl<Tab> label="Conteúdo do grupo" value={tab} onChange={setTab} options={[{ value: 'feed', label: 'Feed' }, { value: 'ranking', label: 'Ranking' }]} />
-    {tab === 'ranking' ? <StateMessage kind="empty" title="Ranking em breve">A classificação será exibida quando a consulta de pontuação estiver disponível.</StateMessage> : <section aria-label="Registros do grupo" className={styles.panel}>
+    {tab === 'ranking' ? <section aria-label="Ranking do grupo" className={styles.panel}>
+      {ranking.isLoading ? <StateMessage kind="loading" title="Calculando ranking…" /> : ranking.error ? <StateMessage kind="error" action={<Button onClick={() => { void ranking.refetch(); }}>Tentar novamente</Button>}>{ranking.error.message}</StateMessage> : ranking.data?.length ? <RankingList entries={ranking.data} currentUserId={session?.user.id ?? ''} /> : <StateMessage kind="empty" title="Ranking vazio">Ainda não há membros ativos neste grupo.</StateMessage>}
+    </section> : <section aria-label="Registros do grupo" className={styles.panel}>
       {feed.isLoading ? <StateMessage kind="loading" /> : <>
         {feed.error && <StateMessage kind="error" action={<Button onClick={() => { void feed.refetch(); }}>Tentar novamente</Button>}>{feed.error.message}</StateMessage>}
         {!feed.error && records.length === 0 && <StateMessage kind="empty" title="Ainda não há registros" action={!encerrado ? <ButtonLink to={`/registros/novo?grupo=${grupo.id}`} variant="primary">Registrar atividade</ButtonLink> : undefined}>{encerrado ? 'Este grupo foi encerrado e está disponível apenas para leitura.' : 'As atividades deste grupo aparecerão aqui.'}</StateMessage>}

@@ -114,13 +114,22 @@ Módulos previstos inicialmente (poderão ser ajustados conforme o desenvolvimen
 
 Rotas autenticadas implementadas pela API:
 
+As rotas públicas de autenticação incluem cadastro/login, ativação de conta,
+recuperação de senha e refresh. Solicitar e confirmar a troca de senha autenticada
+usa `/api/auth/password/change/*`. Tokens de e-mail são persistidos somente como
+hash e os detalhes estão em
+[Ativação por e-mail e senhas](AUTENTICACAO_EMAIL_E_SENHA.md).
+
 | Método | Rota | Acesso |
 |---|---|---|
 | `GET`, `PATCH`, `DELETE` | `/api/users/me` | usuário autenticado; exclusão é lógica e revoga sessões |
+| `GET` | `/api/users/:userId/photo` | foto processada de conta ativa para usuário autenticado |
 | `GET`, `POST` | `/api/groups` | grupos do usuário; criação adiciona o criador como admin |
 | `GET`, `PATCH`, `DELETE` | `/api/groups/:groupId` | leitura por membro ativo; alteração/exclusão por admin ativo |
+| `GET` | `/api/groups/:groupId/photo` | foto processada somente para membro ativo |
 | `GET`, `POST` | `/api/groups/:groupId/invite` | consulta/emissão do código pelo admin ativo de grupo aberto |
 | `POST` | `/api/invites/join` | entrada idempotente de usuário autenticado por código válido |
+| `GET` | `/api/groups/:groupId/ranking` | classificação calculada pelos logs; somente membros ativos |
 | `GET` | `/api/hobbies?groupId=...` | catálogo ativo, filtrado pelas permissões do grupo quando informado |
 | `GET`, `POST` | `/api/records` | leitura paginada por `groupId`; criação por membro ativo |
 | `GET`, `PATCH`, `DELETE` | `/api/records/:recordId` | leitura por membro ativo; alteração/exclusão pelo autor |
@@ -132,6 +141,9 @@ compartilhados. `upload.middleware.js` limita o recebimento; `upload.service.js`
 valida e processa a imagem e gerencia os arquivos. O service de registros coordena
 persistência e limpeza, mantendo acesso ao banco no repository. Detalhes do
 contrato e armazenamento estão em [Upload e registros](UPLOAD_E_REGISTROS.md).
+O mesmo pipeline atende fotos opcionais de perfil e grupo, com chaves internas
+separadas por escopo e leitura autenticada. O contrato está em
+[Fotos de perfil e grupo](FOTOS_PERFIL_GRUPO.md).
 
 O CRUD de registros grava, na mesma transação, os logs de pontuação
 configurados em `pontuacao`. A cooperação usa `bonus_cooperativo.valor` como

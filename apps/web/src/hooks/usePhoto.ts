@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { isPrivatePhoto, photosService } from '../services/photos.service';
 export function usePhoto(source?: string | null) {
   const privatePhoto = isPrivatePhoto(source);
-  const query = useQuery({ queryKey: ['photos', source], queryFn: ({ signal }) => photosService.read(source!, signal), enabled: privatePhoto, staleTime: 300_000, gcTime: 60_000 });
+  const query = useQuery({ queryKey: ['photos', source], queryFn: ({ signal }) => photosService.read(source!, signal), enabled: privatePhoto, staleTime: 0, gcTime: 60_000 });
   const [image, setImage] = useState<{ blob: Blob; url: string }>();
   useEffect(() => {
     if (!query.data) { setImage(undefined); return; }

@@ -1,6 +1,7 @@
 import { recordSchemas } from "./record.schema.js";
 import { recordService } from "./record.service.js";
 import { HttpError } from "../../shared/http-error.js";
+import { userPhotoView } from "../../shared/photo-view.js";
 
 function fields(req) {
   const body = { ...req.body };
@@ -13,7 +14,7 @@ function fields(req) {
   }
   return body;
 }
-function view(record) { return { ...record, foto: `/api/records/${encodeURIComponent(record.id)}/photo` }; }
+function view(record) { return { ...record, foto: `/api/records/${encodeURIComponent(record.id)}/photo`, usuarios: record.usuarios?.map(row => ({ ...row, usuario: userPhotoView(row.usuario) })), criadoPor: userPhotoView(record.criadoPor) }; }
 
 export const recordController = {
   async list(req, res) {

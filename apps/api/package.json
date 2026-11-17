@@ -14,7 +14,8 @@
     "test:session": "tsx scripts/session-integration.js",
     "test:records": "tsx scripts/records-integration.js",
     "test:invites": "tsx scripts/invites-integration.js",
-    "test:rankings": "tsx scripts/rankings-integration.js"
+    "test:rankings": "tsx scripts/rankings-integration.js",
+    "test:profile-group-photos": "tsx scripts/profile-group-photos-integration.js"
   },
   "keywords": [],
   "author": "",

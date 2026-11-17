@@ -63,7 +63,7 @@ export function PhotoField({ label, hint, error, optional, value, onChange, maxS
         </Button>
         {(value || sizeError) && optional && (
           <Button variant="ghost" onClick={() => { setSizeError(undefined); onError?.(undefined); onChange(null); }}>
-            Manter foto atual
+            {existingSrc ? 'Manter foto atual' : 'Remover seleção'}
           </Button>
         )}
       </div>

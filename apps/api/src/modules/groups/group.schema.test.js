@@ -30,4 +30,5 @@ test("grupo rejeita limite fora da regra e hobbies duplicados", () => {
     groupSchemas.create.safeParse({ ...base, hobbyIds: ["h1", "h1"] }).success,
     false,
   );
+  assert.equal(groupSchemas.createFields.safeParse({ ...base, foto: "groups/injetada.webp" }).success, false);
 });

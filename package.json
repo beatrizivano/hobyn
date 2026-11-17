@@ -23,7 +23,8 @@
     "test:session": "corepack pnpm --filter api test:session",
     "test:records": "corepack pnpm --filter api test:records",
     "test:invites": "corepack pnpm --filter api test:invites",
-    "test:rankings": "corepack pnpm --filter api test:rankings"
+    "test:rankings": "corepack pnpm --filter api test:rankings",
+    "test:profile-group-photos": "corepack pnpm --filter api test:profile-group-photos"
   },
   "keywords": [],
   "author": "",

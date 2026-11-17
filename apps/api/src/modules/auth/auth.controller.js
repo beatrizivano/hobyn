@@ -2,6 +2,7 @@ import { authService } from "./auth.service.js";
 import { authSchemas } from "./auth.schema.js";
 import { AuthError } from "./auth.error.js";
 import { refreshCookieOptions } from "./refresh-token.service.js";
+import { userPhotoView } from "../../shared/photo-view.js";
 
 export const authController = {
   async register(req, res) {
@@ -10,7 +11,7 @@ export const authController = {
 
     res.cookie("refreshToken", result.refreshToken, refreshCookieOptions());
     return res.status(201).json({
-      user: result.user,
+      user: userPhotoView(result.user),
       accessToken: result.accessToken,
     });
   },
@@ -21,7 +22,7 @@ export const authController = {
 
     res.cookie("refreshToken", result.refreshToken, refreshCookieOptions());
     return res.status(200).json({
-      user: result.user,
+      user: userPhotoView(result.user),
       accessToken: result.accessToken,
     });
   },
@@ -41,7 +42,7 @@ export const authController = {
 
     res.cookie("refreshToken", result.refreshToken, refreshCookieOptions());
     return res.status(200).json({
-      user: result.user,
+      user: userPhotoView(result.user),
       accessToken: result.accessToken,
     });
   },
@@ -53,6 +54,6 @@ export const authController = {
   },
 
   async me(req, res) {
-    return res.status(200).json(req.authUser);
+    return res.status(200).json(userPhotoView(req.authUser));
   },
 };

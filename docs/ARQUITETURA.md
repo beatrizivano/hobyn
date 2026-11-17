@@ -117,8 +117,10 @@ Rotas autenticadas implementadas pela API:
 | Método | Rota | Acesso |
 |---|---|---|
 | `GET`, `PATCH`, `DELETE` | `/api/users/me` | usuário autenticado; exclusão é lógica e revoga sessões |
+| `GET` | `/api/users/:userId/photo` | foto processada de conta ativa para usuário autenticado |
 | `GET`, `POST` | `/api/groups` | grupos do usuário; criação adiciona o criador como admin |
 | `GET`, `PATCH`, `DELETE` | `/api/groups/:groupId` | leitura por membro ativo; alteração/exclusão por admin ativo |
+| `GET` | `/api/groups/:groupId/photo` | foto processada somente para membro ativo |
 | `GET`, `POST` | `/api/groups/:groupId/invite` | consulta/emissão do código pelo admin ativo de grupo aberto |
 | `POST` | `/api/invites/join` | entrada idempotente de usuário autenticado por código válido |
 | `GET` | `/api/groups/:groupId/ranking` | classificação calculada pelos logs; somente membros ativos |
@@ -133,6 +135,9 @@ compartilhados. `upload.middleware.js` limita o recebimento; `upload.service.js`
 valida e processa a imagem e gerencia os arquivos. O service de registros coordena
 persistência e limpeza, mantendo acesso ao banco no repository. Detalhes do
 contrato e armazenamento estão em [Upload e registros](UPLOAD_E_REGISTROS.md).
+O mesmo pipeline atende fotos opcionais de perfil e grupo, com chaves internas
+separadas por escopo e leitura autenticada. O contrato está em
+[Fotos de perfil e grupo](FOTOS_PERFIL_GRUPO.md).
 
 O CRUD de registros grava, na mesma transação, os logs de pontuação
 configurados em `pontuacao`. A cooperação usa `bonus_cooperativo.valor` como

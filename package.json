@@ -21,7 +21,8 @@
     "typecheck": "corepack pnpm --filter web typecheck",
     "test:integration": "corepack pnpm --filter web test:integration",
     "test:session": "corepack pnpm --filter api test:session",
-    "test:records": "corepack pnpm --filter api test:records"
+    "test:records": "corepack pnpm --filter api test:records",
+    "test:invites": "corepack pnpm --filter api test:invites"
   },
   "keywords": [],
   "author": "",

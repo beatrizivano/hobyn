@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Button, StateMessage } from '../components/common';
 import { useSession } from '../contexts/AuthContext';
+import { safeReturnPath } from '../utils/returnPath';
 
 export function ProtectedRoute() {
   const { session, isLoading, error, retry } = useSession();
@@ -13,7 +14,7 @@ export function ProtectedRoute() {
 export function GuestRoute() {
   const { session, isLoading } = useSession();
   const { state } = useLocation();
-  const target = typeof state?.from === 'string' && state.from.startsWith('/') && !state.from.startsWith('//') ? state.from : '/';
+  const target = safeReturnPath(state?.from);
   if (isLoading) return <StateMessage kind="loading" />;
   return session ? <Navigate to={target} replace /> : <Outlet />;
 }

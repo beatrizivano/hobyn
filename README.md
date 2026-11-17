@@ -65,7 +65,7 @@ por registro e 2 pontos por bloco de 30 minutos. São configurações iniciais d
 desenvolvimento baseadas no exemplo do modelo de dados.
 `BONUS_COOPERATIVO_MULTIPLICADOR=1.2` cria a regra cooperativa se ela não existir.
 Alterar a variável depois não modifica uma regra já persistida.
-O seed não cria contas nem implementa convites, upload ou ranking.
+O seed não cria contas nem dados de convites, upload ou ranking.
 
 ```powershell
 corepack pnpm --filter api db:status
@@ -88,6 +88,15 @@ corepack pnpm typecheck
 `test` executa os testes unitários da API e do cliente HTTP da web,
 incluindo refresh simultâneo, expiração, falha de rede e encerramento de sessão.
 `typecheck` verifica os arquivos TS/TSX. O lint atual cobre JS/JSX.
+
+Para validar convites com o MySQL local ligado:
+
+```powershell
+corepack pnpm test:invites
+```
+
+O teste cobre emissão, permissões, renovação, expiração e entrada concorrente.
+O contrato completo está em [Convites de grupo](docs/CONVITES.md).
 
 Para validar o middleware de sessão com o MySQL local ligado:
 
@@ -135,7 +144,7 @@ Melhorias opcionais de autenticação estão em
 
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
 edição de nome/sobrenome, listagem/criação/detalhe/configuração de grupos,
-catálogo de hobbies, criação multipart, feed paginado, detalhe, edição e exclusão
+emissão e entrada por convite, catálogo de hobbies, criação multipart, feed paginado, detalhe, edição e exclusão
 dos registros, com leitura privada das fotos.
 As mutações de grupos invalidam o cache; logout e troca de identidade limpam
 os dados privados das queries. Não são usados dados dos mocks nas telas integradas.
@@ -143,7 +152,6 @@ os dados privados das queries. Não são usados dados dos mocks nas telas integr
 Ainda pendentes para fechar o fluxo do MVP:
 
 - Envio de fotos de perfil/grupo; o upload de fotos dos registros já está implementado.
-- Emissão/entrada por convite e sua integração na web.
 - Consulta de ranking e sua integração na web.
 - Testes E2E no navegador com dois usuários, responsividade e falhas de rede reais.
 

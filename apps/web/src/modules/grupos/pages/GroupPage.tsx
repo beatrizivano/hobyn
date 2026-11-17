@@ -7,6 +7,7 @@ import { useHobbyCatalog } from '../../../hooks/useRegistros';
 import type { NovoGrupoInput } from '../../../types/domain';
 import { GroupForm } from '../components/GroupForm';
 import { GroupInfo } from '../components/GroupInfo';
+import { GroupInvitePanel } from '../components/GroupInvitePanel';
 import styles from './GroupPage.module.css';
 type Tab = 'feed' | 'ranking';
 export function GroupPage() {
@@ -29,7 +30,9 @@ export function GroupPage() {
   const records = feed.data ?? [];
   return <div className={styles.page}><ScreenHeader title={grupo.nome} subtitle={`${grupo.membros.length} membros`} backTo="/" />
     {typeof state?.recordMessage === 'string' && <p role="status">{state.recordMessage}</p>}
+    {typeof state?.inviteMessage === 'string' && <p role="status">{state.inviteMessage}</p>}
     <GroupInfo grupo={grupo} />
+    {grupo.meuPapel === 'admin' && !encerrado && <GroupInvitePanel groupId={grupo.id} />}
     {grupo.meuPapel === 'admin' && !encerrado && <Button onClick={() => setEditing(value => !value)}>{editing ? 'Cancelar edição' : 'Configurar grupo'}</Button>}
     {editing && (catalog.isLoading ? <StateMessage kind="loading" /> : catalog.error || !catalog.data ? <StateMessage kind="error">Não foi possível carregar os hobbies.</StateMessage> : <GroupForm catalogo={catalog.data} initialValues={grupo} onSubmit={save} error={update.error?.message} />)}
     <SegmentedControl<Tab> label="Conteúdo do grupo" value={tab} onChange={setTab} options={[{ value: 'feed', label: 'Feed' }, { value: 'ranking', label: 'Ranking' }]} />

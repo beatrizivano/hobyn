@@ -127,6 +127,16 @@ revogação imediata após logout, independência entre logins, sessão vencida,
 associação entre sessão e usuário e exclusão de conta. As contas de teste são
 excluídas logicamente ao finalizar.
 
+Para validar ativação e mudanças de senha:
+
+```powershell
+corepack pnpm test:password-email
+```
+
+Em desenvolvimento, os links são exibidos no terminal da API. O SMTP genérico,
+o remetente `noreply` e as regras de ativação estão documentados em
+[Ativação por e-mail e senhas](docs/AUTENTICACAO_EMAIL_E_SENHA.md).
+
 Com API e Vite iniciados, execute também:
 
 ```powershell

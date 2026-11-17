@@ -4,6 +4,7 @@ import { accessTokenService } from "./access-token.service.js";
 import { AuthError } from "./auth.error.js";
 import { authRepository } from "./auth.repository.js";
 import { refreshTokenService } from "./refresh-token.service.js";
+import { accountSecurityService } from "./account-security.service.js";
 
 const passwordSaltRounds = 12;
 const invalidCredentialsMessage = "Email ou senha inválidos.";
@@ -34,7 +35,7 @@ async function createTokensForUser(user) {
 export const authService = {
   async getSessionUser(userId, sessionId) {
     const user = await authRepository.findActiveSessionUser(userId, sessionId, new Date());
-    if (!user) {
+    if (!user || (env.emailVerificationRequired && !user.emailVerificadoEm)) {
       throw new AuthError("Sessão inválida ou expirada.");
     }
     return user;
@@ -47,13 +48,20 @@ export const authService = {
     let created;
 
     try {
-      created = await authRepository.createUserWithSession({
-        userData: {
+      const userData = {
           nome: data.nome,
           sobrenome: data.sobrenome,
           email: data.email,
           hashSenha,
-        },
+          emailVerificadoEm: env.emailVerificationRequired ? null : now,
+      };
+      if (env.emailVerificationRequired) {
+        const user = await authRepository.createUser(userData);
+        await accountSecurityService.issueActivation(user);
+        return { activationRequired: true, email: user.email };
+      }
+      created = await authRepository.createUserWithSession({
+        userData,
         refreshTokenHash: refreshTokenService.hash(refreshToken),
         expiresAt: sessionExpiresAt(now),
       });
@@ -65,6 +73,7 @@ export const authService = {
     }
 
     return {
+      activationRequired: false,
       user: created.user,
       accessToken: accessTokenService.generate(created.user.id, created.sessionId),
       refreshToken,
@@ -80,6 +89,9 @@ export const authService = {
       !(await bcrypt.compare(data.password, user.hashSenha))
     ) {
       throw new AuthError(invalidCredentialsMessage);
+    }
+    if (env.emailVerificationRequired && !user.emailVerificadoEm) {
+      throw new AuthError("Ative sua conta pelo link enviado ao seu e-mail.", 403);
     }
 
     const publicUser = {
@@ -110,6 +122,7 @@ export const authService = {
       session.revokedAt ||
       session.expiresAt <= now ||
       session.usuario.deletedAt
+      || (env.emailVerificationRequired && !session.usuario.emailVerificadoEm)
     ) {
       throw new AuthError("Sessão inválida ou expirada.");
     }

@@ -8,6 +8,7 @@ const passwordSchema = z
     (password) => new TextEncoder().encode(password).byteLength <= 72,
     "A senha deve ter no máximo 72 bytes",
   );
+const tokenSchema = z.string().trim().min(32).max(256);
 
 export const authSchemas = {
   register: z
@@ -24,4 +25,10 @@ export const authSchemas = {
       password: passwordSchema,
     })
     .strict(),
+  requestPasswordReset: z.object({ email: emailSchema }).strict(),
+  resetPassword: z.object({ token: tokenSchema, password: passwordSchema }).strict(),
+  activateAccount: z.object({ token: tokenSchema }).strict(),
+  resendActivation: z.object({ email: emailSchema }).strict(),
+  confirmPasswordChange: z.object({ token: tokenSchema, currentPassword: passwordSchema, password: passwordSchema }).strict(),
+  password: passwordSchema,
 };

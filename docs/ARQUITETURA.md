@@ -114,6 +114,12 @@ Módulos previstos inicialmente (poderão ser ajustados conforme o desenvolvimen
 
 Rotas autenticadas implementadas pela API:
 
+As rotas públicas de autenticação incluem cadastro/login, ativação de conta,
+recuperação de senha e refresh. Solicitar e confirmar a troca de senha autenticada
+usa `/api/auth/password/change/*`. Tokens de e-mail são persistidos somente como
+hash e os detalhes estão em
+[Ativação por e-mail e senhas](AUTENTICACAO_EMAIL_E_SENHA.md).
+
 | Método | Rota | Acesso |
 |---|---|---|
 | `GET`, `PATCH`, `DELETE` | `/api/users/me` | usuário autenticado; exclusão é lógica e revoga sessões |

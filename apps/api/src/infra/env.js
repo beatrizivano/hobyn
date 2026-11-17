@@ -33,6 +33,13 @@ const refreshTokenTtlDays = Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 7);
 const accessTokenTtl = process.env.ACCESS_TOKEN_TTL ?? "15m";
 const cooperativeMultiplier =
   process.env.BONUS_COOPERATIVO_MULTIPLICADOR?.trim() || undefined;
+const mailMode = process.env.MAIL_MODE === "smtp" ? "smtp" : "log";
+const emailVerificationRequired = process.env.EMAIL_VERIFICATION_REQUIRED === "true";
+const smtpPort = Number(process.env.SMTP_PORT ?? 587);
+
+if (mailMode === "smtp" && (!process.env.SMTP_HOST || !process.env.MAIL_FROM || !Number.isInteger(smtpPort))) {
+  throw new Error("SMTP_HOST, SMTP_PORT e MAIL_FROM são obrigatórios quando MAIL_MODE=smtp.");
+}
 
 if (
   !Number.isInteger(refreshTokenTtlDays) ||
@@ -70,4 +77,14 @@ export const env = Object.freeze({
   cooperativeMultiplier:
     cooperativeMultiplier === undefined ? null : Number(cooperativeMultiplier),
   nodeEnv: process.env.NODE_ENV ?? "development",
+  mailMode,
+  mailFrom: process.env.MAIL_FROM ?? "Hobyn <noreply@localhost>",
+  emailVerificationRequired,
+  smtp: mailMode === "smtp" ? {
+    host: process.env.SMTP_HOST,
+    port: smtpPort,
+    secure: process.env.SMTP_SECURE === "true",
+    user: process.env.SMTP_USER,
+    password: process.env.SMTP_PASSWORD,
+  } : null,
 });

@@ -8,7 +8,9 @@
     "dev": "tsx watch src/server.js",
     "test": "tsx --test",
     "db:seed": "tsx prisma/seed.js",
-    "postinstall": "prisma skills sync || exit 0"
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:status": "prisma migrate status"
   },
   "keywords": [],
   "author": "",

@@ -32,7 +32,6 @@ Thumbs.db
 *.tsbuildinfo
 
 # Prisma generated
-prisma/
 generated/
 
 # AI / editor agents
@@ -42,3 +41,5 @@ generated/
 .cursor/
 .devin/
 
+
+.local-tools/

@@ -2,3 +2,4 @@
 export { RecordCard } from './components/RecordCard';
 export { RecordPage } from './pages/RecordPage';
 export { NewRecordPage } from './pages/NewRecordPage';
+export { EditRecordPage } from './pages/EditRecordPage';

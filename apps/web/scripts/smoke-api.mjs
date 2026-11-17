@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 const origin = new URL(process.env.HOBYN_WEB_ORIGIN || 'http://127.0.0.1:5174');
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname), 'Este smoke cria fixtures e so pode rodar em ambiente local.');
 const nativeFetch = globalThis.fetch;
@@ -16,6 +17,7 @@ const { api } = await import('../src/services/http.ts');
 const { authService } = await import('../src/services/auth.service.ts');
 const { groupsService } = await import('../src/services/groups.service.ts');
 const { recordsService } = await import('../src/services/records.service.ts');
+const { photosService } = await import('../src/services/photos.service.ts');
 const accounts = [];
 let groupId;
 let recordId;
@@ -44,9 +46,12 @@ try {
   assert.equal(updated.limiteRegistrosPorDia, 3);
   assert.equal((await groupsService.get(groupId)).nome, 'Nome atualizado');
   console.info('PASS: services da web persistem cadastro, grupos, permissao admin, hobbies e configuracoes pelo proxy.');
-  // Fixture via contrato JSON legado da API: verifica leitura, nao representa upload real.
-  const created = await api.request('/records', { method: 'POST', body: { groupId, hobbyId: hobby.id, data: new Date().toISOString().slice(0, 10), duracaoMinutos: 30, foto: '/fixture-de-teste.jpg', descricao: 'Fixture temporaria de leitura' } });
+  const recordInput = { grupoId: groupId, hobbyId: hobby.id, data: new Date().toISOString().slice(0, 10), duracaoMinutos: 30, foto: new File([await readFile(new URL('../src/assets/hero.png', import.meta.url))], 'foto-teste.png', { type: 'image/png' }), descricao: 'Fixture temporaria de leitura', participanteIds: [] };
+  const created = await recordsService.create(recordInput);
   recordId = created.record.id;
+  const photo = await photosService.read(created.record.foto);
+  assert.equal(photo.type, 'image/webp');
+  assert.ok(photo.size > 0);
   const page = await recordsService.list(groupId);
   assert.equal(page.items[0].id, recordId);
   assert.equal(page.items[0].grupoId, groupId);
@@ -55,7 +60,9 @@ try {
   assert.match(page.items[0].data, /^\d{4}-\d{2}-\d{2}$/);
   assert.equal(page.nextCursor, null);
   assert.equal((await recordsService.get(recordId)).id, recordId);
-  console.info('PASS: feed e detalhe convertem o contrato real de registros sem valores simulados.');
+  await recordsService.update(recordId, { ...recordInput, foto: null, descricao: 'Descricao editada' });
+  assert.equal((await recordsService.get(recordId)).descricao, 'Descricao editada');
+  console.info('PASS: upload multipart, leitura autenticada de foto, feed, detalhe e edicao pelos services reais.');
   api.setSession(null);
   await authService.restore();
   assert.equal(api.getSession().user.email, first.email);
@@ -78,7 +85,7 @@ try {
   for (const account of accounts.reverse()) {
     await authService.login(account);
     if (account.email === first.email) {
-      if (recordId) await api.request('/records/' + recordId, { method: 'DELETE' });
+      if (recordId) await recordsService.remove(recordId);
       if (groupId) await api.request('/groups/' + groupId, { method: 'DELETE' });
     }
     await authService.deleteAccount();

@@ -1,4 +1,6 @@
 import "dotenv/config";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -59,6 +61,7 @@ if (
 
 export const env = Object.freeze({
   databaseUrl,
+  uploadsDir: resolve(fileURLToPath(new URL("../../", import.meta.url)), process.env.UPLOAD_DIR || "storage/uploads"),
   port,
   webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:5174",
   accessTokenSecret,

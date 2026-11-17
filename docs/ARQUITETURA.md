@@ -122,6 +122,14 @@ Rotas autenticadas implementadas pela API:
 | `GET` | `/api/hobbies?groupId=...` | catálogo ativo, filtrado pelas permissões do grupo quando informado |
 | `GET`, `POST` | `/api/records` | leitura paginada por `groupId`; criação por membro ativo |
 | `GET`, `PATCH`, `DELETE` | `/api/records/:recordId` | leitura por membro ativo; alteração/exclusão pelo autor |
+| `GET` | `/api/records/:recordId/photo` | foto binária somente para membro ativo, com a mesma sessão exigida nas outras rotas |
+
+A criação de registros recebe `multipart/form-data` com o arquivo no campo
+`foto`. Campos textuais são normalizados no controller e validados pelos schemas
+compartilhados. `upload.middleware.js` limita o recebimento; `upload.service.js`
+valida e processa a imagem e gerencia os arquivos. O service de registros coordena
+persistência e limpeza, mantendo acesso ao banco no repository. Detalhes do
+contrato e armazenamento estão em [Upload e registros](UPLOAD_E_REGISTROS.md).
 
 O CRUD de registros grava, na mesma transação, os logs de pontuação
 configurados em `pontuacao`. A cooperação usa `bonus_cooperativo.valor` como

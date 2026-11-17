@@ -7,7 +7,7 @@ import { BadgesPage } from '../modules/gamificacao';
 import { CreateGroupPage, GroupPage, JoinGroupPage } from '../modules/grupos';
 import { HomePage } from '../modules/home';
 import { EditProfilePage, ProfilePage, SettingsPage } from '../modules/perfil';
-import { NewRecordPage, RecordPage } from '../modules/registros';
+import { EditRecordPage, NewRecordPage, RecordPage } from '../modules/registros';
 import { GuestRoute, ProtectedRoute } from './SessionRoutes';
 
 export const router = createBrowserRouter([
@@ -27,6 +27,7 @@ export const router = createBrowserRouter([
       { path: '/grupos/novo', element: <CreateGroupPage /> },
       { path: '/grupos/entrar', element: <JoinGroupPage /> },
       { path: '/registros/novo', element: <NewRecordPage /> },
+      { path: '/registros/:recordId/editar', element: <EditRecordPage /> },
       { path: '/registros/:recordId', element: <RecordPage /> },
       { path: '/perfil/editar', element: <EditProfilePage /> },
     ] },

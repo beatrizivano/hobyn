@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
+import { PHOTO_MAX_BYTES, PHOTO_MIME_TYPES } from 'shared';
 import { Camera } from 'lucide-react';
 import { Button } from '../Button';
 import { PhotoFrame } from '../PhotoFrame';
@@ -7,6 +8,8 @@ import styles from './form.module.css';
 
 interface PhotoFieldProps extends FieldMeta {
   value: File | null;
+  existingSrc?: string | null;
+  onError?: (message?: string) => void;
   onChange: (file: File | null) => void;
   /** Limite por arquivo (RNF8: fotos até 10 MB). */
   maxSizeMB?: number;
@@ -14,7 +17,7 @@ interface PhotoFieldProps extends FieldMeta {
 }
 
 /** Seleção de foto com pré-visualização e validação de tamanho antes de enviar. */
-export function PhotoField({ label, hint, error, optional, value, onChange, maxSizeMB = 10, ratio = '4 / 3' }: PhotoFieldProps) {
+export function PhotoField({ label, hint, error, optional, value, onChange, maxSizeMB = PHOTO_MAX_BYTES / (1024 * 1024), existingSrc, onError, ratio = '4 / 3' }: PhotoFieldProps) {
   const id = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -33,12 +36,10 @@ export function PhotoField({ label, hint, error, optional, value, onChange, maxS
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
     event.target.value = '';
-    if (file && file.size > maxSizeMB * 1024 * 1024) {
-      setSizeError(`A foto precisa ter até ${maxSizeMB} MB.`);
-      return;
-    }
-    setSizeError(undefined);
-    onChange(file);
+    const invalid = file && !PHOTO_MIME_TYPES.includes(file.type) ? 'Envie uma foto JPEG, PNG ou WebP.' : file && file.size > maxSizeMB * 1024 * 1024 ? `A foto precisa ter até ${maxSizeMB} MB.` : undefined;
+    setSizeError(invalid);
+    onError?.(invalid);
+    onChange(invalid ? null : file);
   }
 
   const shownError = sizeError ?? error;
@@ -49,20 +50,20 @@ export function PhotoField({ label, hint, error, optional, value, onChange, maxS
         ref={inputRef}
         id={id}
         type="file"
-        accept="image/*"
+        accept={PHOTO_MIME_TYPES.join(',')}
         className="sr-only"
         tabIndex={-1}
         aria-describedby={describedBy(id, { hint, error: shownError })}
         onChange={handleChange}
       />
-      <PhotoFrame src={preview} alt="Pré-visualização da foto escolhida" ratio={ratio} />
+      <PhotoFrame src={preview ?? existingSrc} alt="Pré-visualização da foto escolhida" ratio={ratio} />
       <div className={styles.photoActions}>
         <Button icon={<Camera size={18} aria-hidden="true" />} onClick={() => inputRef.current?.click()}>
           {value ? 'Trocar foto' : 'Escolher foto'}
         </Button>
-        {value && optional && (
-          <Button variant="ghost" onClick={() => onChange(null)}>
-            Remover
+        {(value || sizeError) && optional && (
+          <Button variant="ghost" onClick={() => { setSizeError(undefined); onError?.(undefined); onChange(null); }}>
+            Manter foto atual
           </Button>
         )}
       </div>

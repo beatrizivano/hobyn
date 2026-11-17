@@ -126,3 +126,8 @@ test("limite diário salva o registro mas não gera log para quem excedeu", asyn
     }
   }
 });
+
+test("conflito de gravação retorna 409 para permitir nova tentativa sem simular sucesso", async t => {
+  t.mock.method(recordRepository, "transaction", async () => { throw Object.assign(new Error("Conflito"), { code: "P2034" }); });
+  await assert.rejects(recordService.create("user-1", { groupId: "group-1", hobbyId: "hobby-1", data: "2026-11-17", duracaoMinutos: 30, foto: "foto-teste" }), error => error.statusCode === 409);
+});

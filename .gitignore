@@ -43,3 +43,6 @@ generated/
 
 
 .local-tools/
+
+# Fotos locais persistentes
+/apps/api/storage/uploads/

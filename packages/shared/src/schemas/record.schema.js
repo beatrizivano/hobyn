@@ -20,37 +20,19 @@ const recordFields = {
   userIds: userIdsSchema,
 };
 
+const createFields = z.object({
+  groupId: idSchema, hobbyId: recordFields.hobbyId, data: recordFields.data,
+  duracaoMinutos: recordFields.duracaoMinutos,
+  descricao: recordFields.descricao.optional().default(""), userIds: recordFields.userIds.optional(),
+}).strict();
+const updateFields = z.object({
+  hobbyId: recordFields.hobbyId.optional(), data: recordFields.data.optional(),
+  duracaoMinutos: recordFields.duracaoMinutos.optional(), descricao: recordFields.descricao.optional(),
+  userIds: recordFields.userIds.optional(),
+}).strict();
 export const recordSchemas = {
-  recordId: idSchema,
-  list: z
-    .object({
-      groupId: idSchema,
-      take: z.coerce.number().int().min(1).max(100).default(20),
-      cursor: idSchema.optional(),
-    })
-    .strict(),
-  create: z
-    .object({
-      groupId: idSchema,
-      hobbyId: recordFields.hobbyId,
-      data: recordFields.data,
-      duracaoMinutos: recordFields.duracaoMinutos,
-      foto: recordFields.foto,
-      descricao: recordFields.descricao.optional().default(""),
-      userIds: recordFields.userIds.optional(),
-    })
-    .strict(),
-  update: z
-    .object({
-      hobbyId: recordFields.hobbyId.optional(),
-      data: recordFields.data.optional(),
-      duracaoMinutos: recordFields.duracaoMinutos.optional(),
-      foto: recordFields.foto.optional(),
-      descricao: recordFields.descricao.optional(),
-      userIds: recordFields.userIds.optional(),
-    })
-    .strict()
-    .refine((data) => Object.keys(data).length > 0, {
-      message: "Informe ao menos um campo para atualizar.",
-    }),
+  recordId: idSchema, createFields, updateFields,
+  list: z.object({ groupId: idSchema, take: z.coerce.number().int().min(1).max(100).default(20), cursor: idSchema.optional() }).strict(),
+  create: createFields.extend({ foto: recordFields.foto }),
+  update: updateFields.extend({ foto: recordFields.foto.optional() }).refine(data => Object.keys(data).length > 0, { message: "Informe ao menos um campo para atualizar." }),
 };

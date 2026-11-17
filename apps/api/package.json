@@ -12,7 +12,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:status": "prisma migrate status",
     "test:session": "tsx scripts/session-integration.js",
-    "test:records": "tsx scripts/records-integration.js"
+    "test:records": "tsx scripts/records-integration.js",
+    "test:invites": "tsx scripts/invites-integration.js"
   },
   "keywords": [],
   "author": "",

@@ -67,6 +67,7 @@ model Usuario {
   streak             StreakUsuario?
   objetivos          ObjetivoUsuario[]
   registrosTempoTela RegistroTempoTela[]
+  convitesEmitidos    ConviteGrupo[]
 
   @@map("usuario")
 }
@@ -109,10 +110,27 @@ model Grupo {
   registros          Registro[]
   logsAtividades     LogAtividades[]
   desafiosConcluidos DesafioConclusao[]
+  convite             ConviteGrupo?
 
   @@index([criadoPorId])
   @@index([endsAt, fechamentoProcessadoEm])
   @@map("grupo")
+}
+
+model ConviteGrupo {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  groupId      String   @unique @db.VarChar(30)
+  codigo       String   @unique @db.Char(16)
+  criadoPorId  String   @db.VarChar(30)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  grupo     Grupo   @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  criadoPor Usuario @relation(fields: [criadoPorId], references: [id], onDelete: Restrict)
+
+  @@index([criadoPorId])
+  @@map("conviteGrupo")
 }
 
 model UsuarioGrupo {

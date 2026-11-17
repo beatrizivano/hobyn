@@ -75,7 +75,8 @@ corepack pnpm build
 fotos em diretório temporário. Testa formatos, conteúdo falso, tamanho, acesso
 cruzado, persistência após recriar o servidor, cooperação, limite diário,
 paginação, edição, substituição, exclusão, concorrência e rollback com limpeza.
-A associação de um segundo membro é uma fixture de teste; não implementa convites.
+A associação direta de um segundo membro é apenas uma fixture isolada deste teste;
+o fluxo real de entrada está documentado em [Convites de grupo](CONVITES.md).
 
 `test:integration` exige API e Vite em execução e usa os services reais da web,
 incluindo criação multipart, leitura binária autenticada, edição e exclusão.

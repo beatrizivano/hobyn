@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { groupSchemas } from 'shared';
-import { Button, ChipGroup, ChoiceGroup, SelectField, TextArea, TextField } from '../../../components/common';
+import { Button, ChipGroup, ChoiceGroup, PhotoField, SelectField, TextArea, TextField } from '../../../components/common';
 import type { Grupo, Hobby, ModoPontuacao, NovoGrupoInput } from '../../../types/domain';
 import { todayISODate } from '../../../utils/format';
 import styles from './GroupForm.module.css';
@@ -17,7 +17,8 @@ const LIMIT_OPTIONS = [1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: `${
 export function GroupForm({ catalogo, onSubmit, error, initialValues }: GroupFormProps) {
   const [nome, setNome] = useState(initialValues?.nome ?? '');
   const [descricao, setDescricao] = useState(initialValues?.descricao ?? '');
-  const foto = null;
+  const [foto, setFoto] = useState<File | null>(null);
+  const [photoError, setPhotoError] = useState<string>();
   const [validation, setValidation] = useState<string>();
   const [hobbyIds, setHobbyIds] = useState<string[]>(initialValues?.hobbiesPermitidos.map(hobby => hobby.id) ?? []);
   const [modo, setModo] = useState<ModoPontuacao>(initialValues?.modoPontuacao ?? 'registro');
@@ -31,6 +32,7 @@ export function GroupForm({ catalogo, onSubmit, error, initialValues }: GroupFor
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (submitting) return;
+    if (photoError) { setValidation(photoError); return; }
     setSubmitting(true);
     try {
       const input = {
@@ -42,7 +44,8 @@ export function GroupForm({ catalogo, onSubmit, error, initialValues }: GroupFor
         limiteRegistrosPorDia: limite ? Number(limite) : null,
         endsAt: endsAt ? new Date(`${endsAt}T23:59:59`).toISOString() : null,
       };
-      const result = groupSchemas.create.safeParse({ ...input, foto: null });
+      const { foto: _foto, ...fields } = input;
+      const result = groupSchemas.createFields.safeParse(fields);
       if (!result.success) { setValidation(result.error.issues[0].message); return; }
       setValidation(undefined);
       await onSubmit({ ...input, ...result.data, descricao: result.data.descricao, foto });
@@ -56,7 +59,7 @@ export function GroupForm({ catalogo, onSubmit, error, initialValues }: GroupFor
       {(error || validation) && <p role="alert">{error || validation}</p>}
       <TextField label="Nome do grupo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="off" />
       <TextArea label="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-      <p>A foto do grupo poderá ser adicionada quando o envio de imagens estiver disponível.</p>
+      <PhotoField label="Foto do grupo" optional value={foto} existingSrc={initialValues?.foto} onChange={setFoto} onError={setPhotoError} ratio="4 / 3" />
       <ChipGroup
         legend="Hobbies permitidos"
         optional

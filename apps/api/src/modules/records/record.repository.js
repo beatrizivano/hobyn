@@ -5,6 +5,7 @@ const userSelect = {
   nome: true,
   sobrenome: true,
   fotoDePerfil: true,
+  updatedAt: true,
 };
 
 const recordInclude = {

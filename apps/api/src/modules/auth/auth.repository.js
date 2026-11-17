@@ -7,6 +7,7 @@ const publicUserSelect = {
   email: true,
   fotoDePerfil: true,
   createdAt: true,
+  updatedAt: true,
 };
 
 export const authRepository = {
@@ -62,6 +63,7 @@ export const authRepository = {
             email: true,
             fotoDePerfil: true,
             createdAt: true,
+            updatedAt: true,
             deletedAt: true,
           },
         },

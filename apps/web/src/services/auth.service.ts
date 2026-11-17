@@ -31,8 +31,11 @@ export const authService = {
     api.setSession(null);
   },
   async updateProfile(values: { nome: string; sobrenome: string; foto: File | null }) {
-    if (values.foto) throw new Error('O envio de foto de perfil ainda não está disponível. Salve sem uma nova foto.');
-    const user = await api.request<Usuario>('/users/me', { method: 'PATCH', body: { nome: values.nome, sobrenome: values.sobrenome } });
+    const body = new FormData();
+    body.set('nome', values.nome);
+    body.set('sobrenome', values.sobrenome);
+    if (values.foto) body.set('foto', values.foto);
+    const user = await api.request<Usuario>('/users/me', { method: 'PATCH', body });
     const session = api.getSession();
     if (session) api.setSession({ ...session, user });
     return user;

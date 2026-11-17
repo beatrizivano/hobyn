@@ -89,6 +89,7 @@ export const authService = {
       email: user.email,
       fotoDePerfil: user.fotoDePerfil,
       createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
 
     return createTokensForUser(publicUser);
@@ -137,6 +138,7 @@ export const authService = {
         email: session.usuario.email,
         fotoDePerfil: session.usuario.fotoDePerfil,
         createdAt: session.usuario.createdAt,
+        updatedAt: session.usuario.updatedAt,
       },
       accessToken,
       refreshToken,

@@ -1,5 +1,6 @@
 import { HttpError } from "../../shared/http-error.js";
 import { groupRepository } from "./group.repository.js";
+import { uploadService } from "../../services/upload.service.js";
 
 function ensureNotPastEnd(endsAt) {
   if (endsAt && new Date(endsAt) <= new Date()) {
@@ -27,6 +28,28 @@ function throwForGroupResult(result) {
 }
 
 export const groupService = {
+  async photo(userId, groupId) {
+    const group = await groupService.get(userId, groupId);
+    if (!group.foto) throw new HttpError("Foto não encontrada.", 404);
+    return uploadService.readPhoto(group.foto);
+  },
+
+  async createWithPhoto(userId, data, file) {
+    if (!file) return groupService.create(userId, data);
+    const key = await uploadService.savePhoto(file, "groups");
+    try { return await groupService.create(userId, { ...data, foto: key }); }
+    catch (error) { await uploadService.removePhoto(key); throw error; }
+  },
+
+  async updateWithPhoto(userId, groupId, data, file) {
+    if (!file) return groupService.update(userId, groupId, data);
+    const key = await uploadService.savePhoto(file, "groups");
+    try {
+      const result = await groupService.update(userId, groupId, { ...data, foto: key });
+      await uploadService.removePhoto(result.previousPhoto);
+      return result.group;
+    } catch (error) { await uploadService.removePhoto(key); throw error; }
+  },
   async list(userId) {
     return groupRepository.listForUser(userId);
   },
@@ -72,7 +95,8 @@ export const groupService = {
     if (!result) {
       throw new HttpError("Grupo não encontrado.", 404);
     }
-    return throwForGroupResult(result);
+    const checked = throwForGroupResult(result);
+    return data.foto !== undefined ? checked : checked.group;
   },
 
   async delete(userId, groupId) {
@@ -113,5 +137,6 @@ export const groupService = {
         409,
       );
     }
+    await uploadService.removePhoto(result.photo);
   },
 };

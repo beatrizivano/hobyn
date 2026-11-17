@@ -14,17 +14,24 @@ function groupView(group: GroupDto): Grupo {
     codigoConvite: null,
   };
 }
+function multipart(input: NovoGrupoInput) {
+  const body = new FormData();
+  body.set('nome', input.nome);
+  body.set('descricao', input.descricao);
+  body.set('modoPontuacao', input.modoPontuacao);
+  body.set('limiteRegistrosPorDia', input.limiteRegistrosPorDia === null ? 'null' : String(input.limiteRegistrosPorDia));
+  body.set('endsAt', input.endsAt ?? 'null');
+  body.set('hobbyIds', JSON.stringify(input.hobbyIds));
+  if (input.foto) body.set('foto', input.foto);
+  return body;
+}
 export const groupsService = {
   async list(signal?: AbortSignal) { return (await api.request<GroupDto[]>('/groups', { signal })).map(groupView); },
   async get(id: string, signal?: AbortSignal) { return groupView(await api.request<GroupDto>(`/groups/${encodeURIComponent(id)}`, { signal })); },
   async update(id: string, input: NovoGrupoInput) {
-    if (input.foto) throw new Error('O envio de foto do grupo ainda não está disponível.');
-    const { foto: _foto, ...body } = input;
-    return groupView(await api.request<GroupDto>(`/groups/${encodeURIComponent(id)}`, { method: 'PATCH', body }));
+    return groupView(await api.request<GroupDto>(`/groups/${encodeURIComponent(id)}`, { method: 'PATCH', body: multipart(input) }));
   },
   async create(input: NovoGrupoInput) {
-    if (input.foto) throw new Error('O envio de foto do grupo ainda não está disponível. Crie o grupo sem foto.');
-    const { foto: _foto, ...body } = input;
-    return groupView(await api.request<GroupDto>('/groups', { method: 'POST', body }));
+    return groupView(await api.request<GroupDto>('/groups', { method: 'POST', body: multipart(input) }));
   },
 };

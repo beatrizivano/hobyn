@@ -15,6 +15,7 @@ const groupInclude = {
           nome: true,
           sobrenome: true,
           fotoDePerfil: true,
+          updatedAt: true,
         },
       },
     },
@@ -108,7 +109,7 @@ export const groupRepository = {
           papel: "admin",
           grupo: { deletedAt: null },
         },
-        select: { id: true, grupo: { select: { endsAt: true } } },
+        select: { id: true, grupo: { select: { endsAt: true, foto: true } } },
       });
 
       if (!membership) {
@@ -149,10 +150,11 @@ export const groupRepository = {
         }
       }
 
-      return transaction.grupo.findUnique({
+      const group = await transaction.grupo.findUnique({
         where: { id: groupId },
         include: groupInclude,
       });
+      return { group, previousPhoto: membership.grupo.foto };
     });
   },
 
@@ -175,10 +177,10 @@ export const groupRepository = {
       return { ended: true };
     }
 
-    await prisma.grupo.update({
+    const group = await prisma.grupo.update({
       where: { id: groupId },
-      data: { deletedAt: now },
+      data: { deletedAt: now }, select: { foto: true },
     });
-    return { deleted: true };
+    return { deleted: true, photo: group.foto };
   },
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { Button, ButtonLink, ScreenHeader, SegmentedControl, StateMessage } from '../../../components/common';
+import { Button, ButtonLink, PhotoFrame, ScreenHeader, SegmentedControl, StateMessage } from '../../../components/common';
 import { useGroup, useGroupFeed, useGroupRanking, useUpdateGroup } from '../../../hooks/useGrupos';
 import { RecordCard } from '../../registros';
 import { useHobbyCatalog } from '../../../hooks/useRegistros';
@@ -35,6 +35,7 @@ export function GroupPage() {
   return <div className={styles.page}><ScreenHeader title={grupo.nome} subtitle={`${grupo.membros.length} membros`} backTo="/" />
     {typeof state?.recordMessage === 'string' && <p role="status">{state.recordMessage}</p>}
     {typeof state?.inviteMessage === 'string' && <p role="status">{state.inviteMessage}</p>}
+    {grupo.foto && <PhotoFrame src={grupo.foto} alt={`Foto do grupo ${grupo.nome}`} ratio="16 / 7" />}
     <GroupInfo grupo={grupo} />
     {grupo.meuPapel === 'admin' && !encerrado && <GroupInvitePanel groupId={grupo.id} />}
     {grupo.meuPapel === 'admin' && !encerrado && <Button onClick={() => setEditing(value => !value)}>{editing ? 'Cancelar edição' : 'Configurar grupo'}</Button>}

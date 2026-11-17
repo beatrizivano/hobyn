@@ -1,41 +1,25 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScreenHeader, SectionTitle, StateMessage } from '../../../components/common';
-import { useLogout, useScreenTimeGoal } from '../../../hooks/useAuth';
+import { authService } from '../../../services/auth.service';
+import { errorMessage } from '../../../services/http';
 import { AccountActions } from '../components/AccountActions';
-import { ScreenTimeSettings } from '../components/ScreenTimeSettings';
 import styles from './SettingsPage.module.css';
-
 export function SettingsPage() {
   const navigate = useNavigate();
-  const goal = useScreenTimeGoal();
-  const logout = useLogout();
-
-  if (goal.isLoading) return <StateMessage kind="loading" />;
-
-  return (
-    <div className={styles.page}>
-      <ScreenHeader title="Configurações" backTo="/" />
-      <section aria-labelledby="config-tela">
-        <SectionTitle id="config-tela">Tempo de tela</SectionTitle>
-        <ScreenTimeSettings
-          goalMinutes={goal.data ?? null}
-          onSaveGoal={() => undefined /* TODO: objetivoUsuario (tempo_tela_maximo) */}
-          onSaveToday={() => undefined /* TODO: registroTempoTela do dia */}
-        />
-      </section>
-      <section aria-labelledby="config-conta">
-        <SectionTitle id="config-conta">Conta</SectionTitle>
-        <AccountActions
-          onLogout={() => {
-            logout();
-            navigate('/login');
-          }}
-          onDeleteAccount={() => {
-            // TODO: DELETE /api/users/me (exclusão lógica, revoga sessões).
-            navigate('/login');
-          }}
-        />
-      </section>
-    </div>
-  );
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  async function perform(action: () => Promise<void>) {
+    setBusy(true); setError(undefined);
+    try { await action(); navigate('/login', { replace: true }); }
+    catch (failure) { setError(errorMessage(failure)); }
+    finally { setBusy(false); }
+  }
+  return <div className={styles.page}><ScreenHeader title="Configurações" backTo="/" />
+    <section aria-labelledby="config-conta"><SectionTitle id="config-conta">Conta</SectionTitle>
+      {error && <p role="alert">{error}</p>}
+      <AccountActions busy={busy} onLogout={() => { void perform(authService.logout); }} onDeleteAccount={() => { void perform(authService.deleteAccount); }} />
+    </section>
+    <StateMessage kind="empty" title="Tempo de tela em breve">As metas de tempo de tela ainda não estão disponíveis.</StateMessage>
+  </div>;
 }

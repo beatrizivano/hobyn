@@ -15,9 +15,11 @@
     "dev": "node scripts/dev.mjs",
     "dev:api": "corepack pnpm --filter api dev",
     "dev:web": "corepack pnpm --filter web dev",
-    "test": "corepack pnpm --filter api test",
+    "test": "corepack pnpm --filter api test && corepack pnpm --filter web test",
     "build": "corepack pnpm --filter web build",
-    "lint": "corepack pnpm --filter web lint"
+    "lint": "corepack pnpm --filter web lint",
+    "typecheck": "corepack pnpm --filter web typecheck",
+    "test:integration": "corepack pnpm --filter web test:integration"
   },
   "keywords": [],
   "author": "",

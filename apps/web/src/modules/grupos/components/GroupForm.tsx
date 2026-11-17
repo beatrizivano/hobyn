@@ -1,25 +1,28 @@
 import { useState, type FormEvent } from 'react';
-import { Button, ChipGroup, ChoiceGroup, PhotoField, SelectField, TextArea, TextField } from '../../../components/common';
-import type { Hobby, ModoPontuacao, NovoGrupoInput } from '../../../types/domain';
+import { groupSchemas } from 'shared';
+import { Button, ChipGroup, ChoiceGroup, SelectField, TextArea, TextField } from '../../../components/common';
+import type { Grupo, Hobby, ModoPontuacao, NovoGrupoInput } from '../../../types/domain';
 import { todayISODate } from '../../../utils/format';
 import styles from './GroupForm.module.css';
 
 interface GroupFormProps {
   catalogo: Hobby[];
+  error?: string;
+  initialValues?: Grupo;
   onSubmit: (input: NovoGrupoInput) => void | Promise<void>;
 }
 
 const LIMIT_OPTIONS = [1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: `${n} por dia` }));
 
-export function GroupForm({ catalogo, onSubmit }: GroupFormProps) {
-  const [nome, setNome] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [foto, setFoto] = useState<File | null>(null);
-  const [hobbyIds, setHobbyIds] = useState<string[]>([]);
-  const [modo, setModo] = useState<ModoPontuacao>('registro');
-  const [limite, setLimite] = useState('');
-  const [endsAt, setEndsAt] = useState('');
-  const [nomeError, setNomeError] = useState<string>();
+export function GroupForm({ catalogo, onSubmit, error, initialValues }: GroupFormProps) {
+  const [nome, setNome] = useState(initialValues?.nome ?? '');
+  const [descricao, setDescricao] = useState(initialValues?.descricao ?? '');
+  const foto = null;
+  const [validation, setValidation] = useState<string>();
+  const [hobbyIds, setHobbyIds] = useState<string[]>(initialValues?.hobbiesPermitidos.map(hobby => hobby.id) ?? []);
+  const [modo, setModo] = useState<ModoPontuacao>(initialValues?.modoPontuacao ?? 'registro');
+  const [limite, setLimite] = useState(initialValues?.limiteRegistrosPorDia ? String(initialValues.limiteRegistrosPorDia) : '');
+  const [endsAt, setEndsAt] = useState(() => initialValues?.endsAt ? new Date(initialValues.endsAt).toLocaleDateString('en-CA') : '');
   const [submitting, setSubmitting] = useState(false);
 
   // "Outro" não é escolhido aqui: ele aparece sozinho em grupos sem restrição de hobbies.
@@ -27,14 +30,10 @@ export function GroupForm({ catalogo, onSubmit }: GroupFormProps) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (nome.trim().length < 2) {
-      setNomeError('Dê um nome ao grupo, com pelo menos 2 letras.');
-      return;
-    }
-    setNomeError(undefined);
+    if (submitting) return;
     setSubmitting(true);
     try {
-      await onSubmit({
+      const input = {
         nome: nome.trim(),
         descricao: descricao.trim(),
         foto,
@@ -42,7 +41,11 @@ export function GroupForm({ catalogo, onSubmit }: GroupFormProps) {
         modoPontuacao: modo,
         limiteRegistrosPorDia: limite ? Number(limite) : null,
         endsAt: endsAt ? new Date(`${endsAt}T23:59:59`).toISOString() : null,
-      });
+      };
+      const result = groupSchemas.create.safeParse({ ...input, foto: null });
+      if (!result.success) { setValidation(result.error.issues[0].message); return; }
+      setValidation(undefined);
+      await onSubmit({ ...input, ...result.data, descricao: result.data.descricao, foto });
     } finally {
       setSubmitting(false);
     }
@@ -50,9 +53,10 @@ export function GroupForm({ catalogo, onSubmit }: GroupFormProps) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      <TextField label="Nome do grupo" value={nome} onChange={(e) => setNome(e.target.value)} error={nomeError} autoComplete="off" />
-      <TextArea label="Descrição" optional value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-      <PhotoField label="Foto do grupo" optional value={foto} onChange={setFoto} ratio="16 / 9" />
+      {(error || validation) && <p role="alert">{error || validation}</p>}
+      <TextField label="Nome do grupo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="off" />
+      <TextArea label="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+      <p>A foto do grupo poderá ser adicionada quando o envio de imagens estiver disponível.</p>
       <ChipGroup
         legend="Hobbies permitidos"
         optional
@@ -96,7 +100,7 @@ export function GroupForm({ catalogo, onSubmit }: GroupFormProps) {
         hint="Sem data final, o grupo continua sem prazo."
       />
       <Button type="submit" variant="primary" fullWidth disabled={submitting}>
-        {submitting ? 'Criando…' : 'Criar grupo'}
+        {submitting ? 'Salvando…' : initialValues ? 'Salvar configurações' : 'Criar grupo'}
       </Button>
     </form>
   );

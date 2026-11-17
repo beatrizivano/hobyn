@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-for (const relative of ['.env', 'apps/api/.env']) {
+for (const relative of ['.env', 'apps/api/.env', 'apps/web/.env']) {
   const template = await readFile(new URL(`${relative}.example`, root), 'utf8');
   const content = template.replace('GENERATE_WITH_SETUP_LOCAL', randomBytes(48).toString('hex'));
   try {

@@ -1,0 +1,90 @@
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+const origin = new URL(process.env.HOBYN_WEB_ORIGIN || 'http://127.0.0.1:5173');
+assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname), 'Este smoke cria fixtures e so pode rodar em ambiente local.');
+const nativeFetch = globalThis.fetch;
+let cookie = '';
+globalThis.fetch = async (input, init = {}) => {
+  const url = new URL(String(input), origin);
+  const headers = new Headers(init.headers);
+  if (cookie && url.pathname.startsWith('/api/auth')) headers.set('Cookie', cookie);
+  const response = await nativeFetch(url, { ...init, headers, signal: init.signal ?? AbortSignal.timeout(15000) });
+  for (const value of response.headers.getSetCookie()) if (value.startsWith('refreshToken=')) cookie = value.split(';')[0];
+  return response;
+};
+const { api } = await import('../src/services/http.ts');
+const { authService } = await import('../src/services/auth.service.ts');
+const { groupsService } = await import('../src/services/groups.service.ts');
+const { recordsService } = await import('../src/services/records.service.ts');
+const accounts = [];
+let groupId;
+let recordId;
+const credentials = () => ({ nome: 'Teste', sobrenome: 'Integracao', email: 'web.' + randomUUID() + '@example.com', senha: randomUUID() + '-Aa1' });
+const first = credentials();
+try {
+  await authService.restore();
+  assert.equal(api.getSession(), null);
+  await authService.register(first);
+  accounts.push(first);
+  assert.equal(api.getSession().user.email, first.email);
+  await assert.rejects(authService.login({ ...first, senha: 'senha-incorreta-123' }), error => error.status === 401);
+  assert.equal(api.getSession().user.email, first.email);
+  const catalog = await recordsService.catalog();
+  assert.equal(catalog.length, 5);
+  const hobby = catalog.find(h => h.nome === 'Leitura');
+  const group = await groupsService.create({ nome: 'Integracao web e API', descricao: 'Grupo temporario de verificacao', foto: null, hobbyIds: [hobby.id], modoPontuacao: 'registro', limiteRegistrosPorDia: 2, endsAt: null });
+  groupId = group.id;
+  assert.equal(group.meuPapel, 'admin');
+  assert.equal(group.hobbiesPermitidos[0].id, hobby.id);
+  assert.equal(group.membros[0].id, api.getSession().user.id);
+  assert.equal(group.codigoConvite, null);
+  assert.ok((await groupsService.list()).some(g => g.id === groupId));
+  const updated = await groupsService.update(groupId, { nome: 'Nome atualizado', descricao: 'Configuracao persistida', foto: null, hobbyIds: [hobby.id], modoPontuacao: 'tempo', limiteRegistrosPorDia: 3, endsAt: null });
+  assert.equal(updated.modoPontuacao, 'tempo');
+  assert.equal(updated.limiteRegistrosPorDia, 3);
+  assert.equal((await groupsService.get(groupId)).nome, 'Nome atualizado');
+  console.info('PASS: services da web persistem cadastro, grupos, permissao admin, hobbies e configuracoes pelo proxy.');
+  // Fixture via contrato JSON legado da API: verifica leitura, nao representa upload real.
+  const created = await api.request('/records', { method: 'POST', body: { groupId, hobbyId: hobby.id, data: new Date().toISOString().slice(0, 10), duracaoMinutos: 30, foto: '/fixture-de-teste.jpg', descricao: 'Fixture temporaria de leitura' } });
+  recordId = created.record.id;
+  const page = await recordsService.list(groupId);
+  assert.equal(page.items[0].id, recordId);
+  assert.equal(page.items[0].grupoId, groupId);
+  assert.equal(page.items[0].autores[0].id, api.getSession().user.id);
+  assert.equal(page.items[0].curtidas, null);
+  assert.match(page.items[0].data, /^\d{4}-\d{2}-\d{2}$/);
+  assert.equal(page.nextCursor, null);
+  assert.equal((await recordsService.get(recordId)).id, recordId);
+  console.info('PASS: feed e detalhe convertem o contrato real de registros sem valores simulados.');
+  api.setSession(null);
+  await authService.restore();
+  assert.equal(api.getSession().user.email, first.email);
+  api.setSession({ ...api.getSession(), accessToken: 'token-invalido' });
+  await groupsService.list();
+  assert.notEqual(api.getSession().accessToken, 'token-invalido');
+  await authService.updateProfile({ nome: 'Nome real', sobrenome: 'Atualizado', foto: null });
+  assert.equal(api.getSession().user.nome, 'Nome real');
+  await authService.logout();
+  await authService.restore();
+  assert.equal(api.getSession(), null);
+  console.info('PASS: restauracao por cookie, refresh automatico, edicao de perfil e logout reais.');
+  const second = credentials();
+  await authService.register(second); accounts.push(second);
+  assert.equal((await groupsService.list()).length, 0);
+  await assert.rejects(groupsService.get(groupId), error => error.status === 404);
+  await assert.rejects(recordsService.get(recordId), error => error.status === 404);
+  console.info('PASS: segundo usuario nao recebe grupos nem registros do primeiro.');
+} finally {
+  for (const account of accounts.reverse()) {
+    await authService.login(account);
+    if (account.email === first.email) {
+      if (recordId) await api.request('/records/' + recordId, { method: 'DELETE' });
+      if (groupId) await api.request('/groups/' + groupId, { method: 'DELETE' });
+    }
+    await authService.deleteAccount();
+    await authService.restore();
+    assert.equal(api.getSession(), null);
+  }
+  globalThis.fetch = nativeFetch;
+  console.info('PASS: fixtures removidas pelos endpoints; contas revogadas, logs historicos preservados.');
+}

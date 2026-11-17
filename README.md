@@ -20,7 +20,7 @@ corepack pnpm db:setup
 corepack pnpm dev
 ```
 
-O setup cria `.env` na raiz e em `apps/api`, gera uma chave JWT aleatória e preserva
+O setup cria `.env` na raiz, em `apps/api` e em `apps/web`, gera uma chave JWT aleatória e preserva
 arquivos existentes. Os arquivos reais são ignorados pelo Git. A instalação usa a
 versão de pnpm fixada no projeto, sem exigir instalação global.
 
@@ -82,12 +82,57 @@ globais para criar shadow databases.
 corepack pnpm test
 corepack pnpm build
 corepack pnpm lint
+corepack pnpm typecheck
 ```
 
-Os testes atuais da API são unitários com repositories simulados; não comprovam
-integração HTTP com MySQL. O lint atual cobre JS/JSX; cobertura de TS/TSX e checagem
-de tipos continuam pendentes. O frontend ainda usa mocks e os formulários ainda
-não persistem pela API. Subir este ambiente não conclui a integração funcional.
+`test` executa os 17 testes unitários da API e os 7 testes do cliente HTTP da web,
+incluindo refresh simultâneo, expiração, falha de rede e encerramento de sessão.
+`typecheck` verifica os arquivos TS/TSX. O lint atual cobre JS/JSX.
+
+Com API e Vite iniciados, execute também:
+
+```powershell
+corepack pnpm test:integration
+```
+
+Esse smoke usa os services reais da web através do proxy Vite e do MySQL.
+Cria duas contas e um grupo temporários, confere contratos e permissões,
+restaura a sessão por cookie, testa refresh e edição de perfil e limpa as fixtures
+pelos endpoints. As exclusões lógicas e os logs históricos são preservados pelas
+regras da aplicação. O teste só aceita destinos locais e usa um cookie jar de teste;
+não substitui E2E em navegador. A foto da fixture é uma referência de teste pelo
+contrato JSON legado, não um upload real.
+
+## Integração web e API
+
+O cliente web usa `VITE_API_BASE_URL=/api`; em desenvolvimento o Vite encaminha
+as chamadas para `API_PROXY_TARGET` (padrão `http://127.0.0.1:3030`). Assim, web e
+cookie de refresh ficam na mesma origem. O access token fica em memória; o cookie
+HttpOnly restaura a sessão após reload. Rotas privadas exigem uma sessão válida.
+API e web reutilizam os schemas do pacote local `shared` via `workspace:*`.
+
+Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
+edição de nome/sobrenome, listagem/criação/detalhe/configuração de grupos,
+catálogo de hobbies, feed paginado e detalhe dos registros.
+As mutações de grupos invalidam o cache; logout e troca de identidade limpam
+os dados privados das queries. Não são usados dados dos mocks nas telas integradas.
+
+Ainda pendentes para fechar o fluxo do MVP:
+
+- Upload, armazenamento e limpeza de fotos; depois, envio do formulário de registro
+  e edição de fotos de perfil/grupo.
+- Emissão/entrada por convite e sua integração na web.
+- Consulta de ranking e sua integração na web.
+- Edição/exclusão de registros pela interface e testes de pontuação/concorrência.
+- Testes E2E no navegador com dois usuários, responsividade e falhas de rede reais.
+
+Conquistas, desafios e estatísticas avançadas continuam fora deste recorte.
+As telas sem endpoint mostram indisponibilidade, em vez de dados simulados ou
+sucesso sem persistência.
+
+Para publicar o build, configure um reverse proxy para `/api` ou informe a URL
+pública da API em `VITE_API_BASE_URL` no momento do build e ajuste CORS/cookies.
+Variáveis `VITE_*` são públicas e não devem conter segredos.
 
 ## Docker e mudança de ambiente
 

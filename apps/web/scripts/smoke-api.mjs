@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-const origin = new URL(process.env.HOBYN_WEB_ORIGIN || 'http://127.0.0.1:5173');
+const origin = new URL(process.env.HOBYN_WEB_ORIGIN || 'http://127.0.0.1:5174');
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(origin.hostname), 'Este smoke cria fixtures e so pode rodar em ambiente local.');
 const nativeFetch = globalThis.fetch;
 let cookie = '';

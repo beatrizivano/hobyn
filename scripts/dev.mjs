@@ -8,7 +8,7 @@ const apiRequire = createRequire(new URL('apps/api/package.json', root));
 const webRequire = createRequire(new URL('apps/web/package.json', root));
 const services = [
   { name: 'API', cwd: 'apps/api/', cli: apiRequire.resolve('tsx/cli'), args: ['watch', 'src/server.js'] },
-  { name: 'Web', cwd: 'apps/web/', cli: join(dirname(webRequire.resolve('vite/package.json')), 'bin/vite.js'), args: ['--host', '127.0.0.1', '--port', '5173', '--strictPort'] },
+  { name: 'Web', cwd: 'apps/web/', cli: join(dirname(webRequire.resolve('vite/package.json')), 'bin/vite.js'), args: ['--host', '127.0.0.1', '--port', '5174', '--strictPort'] },
 ];
 const children = [];
 let stopping = false;

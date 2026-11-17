@@ -60,7 +60,7 @@ if (
 export const env = Object.freeze({
   databaseUrl,
   port,
-  webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
+  webOrigin: process.env.WEB_ORIGIN ?? "http://localhost:5174",
   accessTokenSecret,
   accessTokenTtl,
   refreshTokenTtlDays,

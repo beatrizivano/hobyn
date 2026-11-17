@@ -26,7 +26,7 @@ versão de pnpm fixada no projeto, sem exigir instalação global.
 
 | Serviço | Endereço |
 | --- | --- |
-| Web | http://localhost:5173 |
+| Web | http://localhost:5174 |
 | API | http://localhost:3030/api |
 | MySQL | 127.0.0.1:3307 |
 

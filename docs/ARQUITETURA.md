@@ -121,6 +121,7 @@ Rotas autenticadas implementadas pela API:
 | `GET`, `PATCH`, `DELETE` | `/api/groups/:groupId` | leitura por membro ativo; alteração/exclusão por admin ativo |
 | `GET`, `POST` | `/api/groups/:groupId/invite` | consulta/emissão do código pelo admin ativo de grupo aberto |
 | `POST` | `/api/invites/join` | entrada idempotente de usuário autenticado por código válido |
+| `GET` | `/api/groups/:groupId/ranking` | classificação calculada pelos logs; somente membros ativos |
 | `GET` | `/api/hobbies?groupId=...` | catálogo ativo, filtrado pelas permissões do grupo quando informado |
 | `GET`, `POST` | `/api/records` | leitura paginada por `groupId`; criação por membro ativo |
 | `GET`, `PATCH`, `DELETE` | `/api/records/:recordId` | leitura por membro ativo; alteração/exclusão pelo autor |

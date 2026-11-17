@@ -22,7 +22,8 @@
     "test:integration": "corepack pnpm --filter web test:integration",
     "test:session": "corepack pnpm --filter api test:session",
     "test:records": "corepack pnpm --filter api test:records",
-    "test:invites": "corepack pnpm --filter api test:invites"
+    "test:invites": "corepack pnpm --filter api test:invites",
+    "test:rankings": "corepack pnpm --filter api test:rankings"
   },
   "keywords": [],
   "author": "",

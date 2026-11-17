@@ -24,7 +24,8 @@
     "test:records": "corepack pnpm --filter api test:records",
     "test:invites": "corepack pnpm --filter api test:invites",
     "test:rankings": "corepack pnpm --filter api test:rankings",
-    "test:profile-group-photos": "corepack pnpm --filter api test:profile-group-photos"
+    "test:profile-group-photos": "corepack pnpm --filter api test:profile-group-photos",
+    "test:memberships": "corepack pnpm --filter api test:memberships"
   },
   "keywords": [],
   "author": "",

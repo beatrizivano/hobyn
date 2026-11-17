@@ -9,7 +9,7 @@ function groupView(group: GroupDto): Grupo {
   return {
     ...group,
     hobbiesPermitidos: group.hobbiesPermitidos.map(row => row.hobby),
-    membros: group.usuarios.map(row => row.usuario),
+    membros: group.usuarios.map(row => ({ ...row.usuario, papel: row.papel })),
     meuPapel: group.usuarios.find(row => row.userId === api.getSession()?.user.id)?.papel,
     codigoConvite: null,
   };
@@ -34,4 +34,6 @@ export const groupsService = {
   async create(input: NovoGrupoInput) {
     return groupView(await api.request<GroupDto>('/groups', { method: 'POST', body: multipart(input) }));
   },
+  leave(id: string) { return api.request<{ left: true; newAdminId: string | null }>(`/groups/${encodeURIComponent(id)}/leave`, { method: 'POST' }); },
+  removeMember(id: string, userId: string) { return api.request<void>(`/groups/${encodeURIComponent(id)}/members/${encodeURIComponent(userId)}`, { method: 'DELETE' }); },
 };

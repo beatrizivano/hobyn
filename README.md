@@ -89,6 +89,15 @@ corepack pnpm typecheck
 incluindo refresh simultâneo, expiração, falha de rede e encerramento de sessão.
 `typecheck` verifica os arquivos TS/TSX. O lint atual cobre JS/JSX.
 
+Para validar o ranking com o MySQL local ligado:
+
+```powershell
+corepack pnpm test:rankings
+```
+
+A classificação soma os logs dos membros ativos e está documentada em
+[Ranking dos grupos](docs/RANKING.md).
+
 Para validar convites com o MySQL local ligado:
 
 ```powershell
@@ -145,14 +154,13 @@ Melhorias opcionais de autenticação estão em
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
 edição de nome/sobrenome, listagem/criação/detalhe/configuração de grupos,
 emissão e entrada por convite, catálogo de hobbies, criação multipart, feed paginado, detalhe, edição e exclusão
-dos registros, com leitura privada das fotos.
+dos registros, com leitura privada das fotos, além do ranking calculado por grupo.
 As mutações de grupos invalidam o cache; logout e troca de identidade limpam
 os dados privados das queries. Não são usados dados dos mocks nas telas integradas.
 
 Ainda pendentes para fechar o fluxo do MVP:
 
 - Envio de fotos de perfil/grupo; o upload de fotos dos registros já está implementado.
-- Consulta de ranking e sua integração na web.
 - Testes E2E no navegador com dois usuários, responsividade e falhas de rede reais.
 
 Conquistas, desafios e estatísticas avançadas continuam fora deste recorte.

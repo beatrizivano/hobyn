@@ -276,6 +276,8 @@ colocacaoNoGrupo = posição de X ao ordenar todos os usuários
 **Comportamentos**
 - Não existe risco de a pontuação "dessincronizar" da fonte de verdade,
   porque ela é sempre recalculada, nunca escrita diretamente.
+- Empates compartilham a colocação no formato competitivo (`1, 1, 3`);
+  nome e identificador servem apenas como ordenação visual estável.
 - O ranking "ao vivo" de um grupo considera apenas usuários com
   `usuarioGrupo.saiuEm` nulo (membros ativos). As estatísticas de perfil de
   um usuário que já saiu do grupo continuam calculáveis normalmente, porque

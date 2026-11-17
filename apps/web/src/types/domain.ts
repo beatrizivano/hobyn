@@ -13,7 +13,7 @@ export interface Usuario {
   createdAt: string;
 }
 
-export type Membro = Pick<Usuario, 'id' | 'nome' | 'sobrenome' | 'fotoDePerfil'>;
+export type Membro = Pick<Usuario, 'id' | 'nome' | 'sobrenome' | 'fotoDePerfil'> & { papel?: 'admin' | 'membro' };
 
 export interface Hobby {
   id: string;

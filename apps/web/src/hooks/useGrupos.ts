@@ -14,6 +14,14 @@ export function useUpdateGroup(id: string) {
   const client = useQueryClient();
   return useMutation({ mutationFn: (input: NovoGrupoInput) => groupsService.update(id, input), onSuccess: async () => { await client.invalidateQueries({ queryKey: ['groups'] }); } });
 }
+export function useLeaveGroup(id: string) {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: () => groupsService.leave(id), onSuccess: async () => { client.removeQueries({ queryKey: ['groups', id] }); await client.invalidateQueries({ queryKey: ['groups'] }); } });
+}
+export function useRemoveGroupMember(id: string) {
+  const client = useQueryClient();
+  return useMutation({ mutationFn: (userId: string) => groupsService.removeMember(id, userId), onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ['groups', id] }), client.invalidateQueries({ queryKey: ['groups', id, 'ranking'] })]); } });
+}
 export function useGroupFeed(groupId: string) {
   const query = useInfiniteQuery({
     queryKey: ['records', 'feed', groupId], initialPageParam: undefined as string | undefined,

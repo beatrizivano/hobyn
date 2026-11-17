@@ -3,6 +3,9 @@
 Implementar apenas se houver tempo depois dos fluxos centrais. Esta lista não
 amplia os critérios de entrega do MVP.
 
+Concluído nesta etapa: saída do grupo, remoção exclusiva pelo administrador e
+sucessão automática para o membro ativo mais antigo, preservando o histórico.
+
 | Melhoria | Situação atual | Critério para considerar concluída |
 | --- | --- | --- |
 | Coordenar sessão entre abas | Cada aba já compartilha um único refresh entre suas próprias requisições, mas não coordena a rotação com outras abas. | Duas abas renovam sem disputar o cookie; logout em uma é refletido na outra. |

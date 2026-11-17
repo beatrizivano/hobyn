@@ -116,6 +116,15 @@ corepack pnpm test:invites
 O teste cobre emissão, permissões, renovação, expiração e entrada concorrente.
 O contrato completo está em [Convites de grupo](docs/CONVITES.md).
 
+Para validar saída, remoção e sucessão automática de membros:
+
+```powershell
+corepack pnpm test:memberships
+```
+
+As regras de preservação de histórico estão em
+[Saída e remoção de membros](docs/GESTAO_DE_MEMBROS.md).
+
 Para validar o middleware de sessão com o MySQL local ligado:
 
 ```powershell
@@ -162,6 +171,7 @@ Melhorias opcionais de autenticação estão em
 
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
 edição de perfil com foto, listagem/criação/detalhe/configuração de grupos com foto,
+saída, remoção de membros e sucessão automática de administrador,
 emissão e entrada por convite, catálogo de hobbies, criação multipart, feed paginado,
 detalhe, edição e exclusão dos registros, com leitura privada das fotos, além do
 ranking calculado por grupo.

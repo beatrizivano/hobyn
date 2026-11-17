@@ -10,6 +10,7 @@ import { GroupInfo } from '../components/GroupInfo';
 import { GroupInvitePanel } from '../components/GroupInvitePanel';
 import { RankingList } from '../components/RankingList';
 import { useSession } from '../../../contexts/AuthContext';
+import { GroupMembersPanel } from '../components/GroupMembersPanel';
 import styles from './GroupPage.module.css';
 type Tab = 'feed' | 'ranking';
 export function GroupPage() {
@@ -37,6 +38,7 @@ export function GroupPage() {
     {typeof state?.inviteMessage === 'string' && <p role="status">{state.inviteMessage}</p>}
     {grupo.foto && <PhotoFrame src={grupo.foto} alt={`Foto do grupo ${grupo.nome}`} ratio="16 / 7" />}
     <GroupInfo grupo={grupo} />
+    <GroupMembersPanel grupo={grupo} currentUserId={session?.user.id ?? ''} ended={encerrado} />
     {grupo.meuPapel === 'admin' && !encerrado && <GroupInvitePanel groupId={grupo.id} />}
     {grupo.meuPapel === 'admin' && !encerrado && <Button onClick={() => setEditing(value => !value)}>{editing ? 'Cancelar edição' : 'Configurar grupo'}</Button>}
     {editing && (catalog.isLoading ? <StateMessage kind="loading" /> : catalog.error || !catalog.data ? <StateMessage kind="error">Não foi possível carregar os hobbies.</StateMessage> : <GroupForm catalogo={catalog.data} initialValues={grupo} onSubmit={save} error={update.error?.message} />)}

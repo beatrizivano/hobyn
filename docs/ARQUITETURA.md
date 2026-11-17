@@ -120,6 +120,8 @@ Rotas autenticadas implementadas pela API:
 | `GET` | `/api/users/:userId/photo` | foto processada de conta ativa para usuário autenticado |
 | `GET`, `POST` | `/api/groups` | grupos do usuário; criação adiciona o criador como admin |
 | `GET`, `PATCH`, `DELETE` | `/api/groups/:groupId` | leitura por membro ativo; alteração/exclusão por admin ativo |
+| `POST` | `/api/groups/:groupId/leave` | saída do membro; sucessão automática se ele for admin |
+| `DELETE` | `/api/groups/:groupId/members/:userId` | remoção lógica de membro pelo admin ativo |
 | `GET` | `/api/groups/:groupId/photo` | foto processada somente para membro ativo |
 | `GET`, `POST` | `/api/groups/:groupId/invite` | consulta/emissão do código pelo admin ativo de grupo aberto |
 | `POST` | `/api/invites/join` | entrada idempotente de usuário autenticado por código válido |

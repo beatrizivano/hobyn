@@ -7,7 +7,7 @@ const groupInclude = {
     },
   },
   usuarios: {
-    where: { saiuEm: null },
+    where: { saiuEm: null, usuario: { deletedAt: null } },
     include: {
       usuario: {
         select: {

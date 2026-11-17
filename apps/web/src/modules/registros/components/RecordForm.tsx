@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
+import { recordSchemas } from 'shared';
 import { Button, ChipGroup, PhotoField, SelectField, TextArea, TextField } from '../../../components/common';
-import type { Grupo, Hobby, NovoRegistroInput } from '../../../types/domain';
+import type { Grupo, Hobby, Registro, RegistroFormInput } from '../../../types/domain';
 import { fullName, todayISODate } from '../../../utils/format';
 import styles from './RecordForm.module.css';
 
@@ -9,20 +10,24 @@ interface RecordFormProps {
   /** Catálogo global de hobbies (inclui "Outro"). */
   catalogo: Hobby[];
   initialGroupId?: string;
+  initialRecord?: Registro;
+  error?: string;
   currentUserId: string;
-  onSubmit: (input: NovoRegistroInput) => void | Promise<void>;
+  onSubmit: (input: RegistroFormInput) => void | Promise<void>;
 }
 
 type Errors = Partial<Record<'grupo' | 'hobby' | 'data' | 'duracao' | 'foto', string>>;
 
-export function RecordForm({ grupos, catalogo, initialGroupId, currentUserId, onSubmit }: RecordFormProps) {
-  const [grupoId, setGrupoId] = useState(() => grupos.find((g) => g.id === initialGroupId)?.id ?? grupos[0]?.id ?? '');
-  const [hobbyChoice, setHobbyChoice] = useState('');
-  const [data, setData] = useState(todayISODate);
-  const [duracao, setDuracao] = useState('');
+export function RecordForm({ grupos, catalogo, initialGroupId, initialRecord, currentUserId, onSubmit, error }: RecordFormProps) {
+  const [grupoId, setGrupoId] = useState(() => initialRecord?.grupoId ?? grupos.find((g) => g.id === initialGroupId)?.id ?? grupos[0]?.id ?? '');
+  const [hobbyChoice, setHobbyChoice] = useState(initialRecord?.hobby.id ?? '');
+  const [data, setData] = useState(initialRecord?.data ?? todayISODate());
+  const [duracao, setDuracao] = useState(initialRecord ? String(initialRecord.duracaoMinutos) : '');
   const [foto, setFoto] = useState<File | null>(null);
-  const [descricao, setDescricao] = useState('');
-  const [participantes, setParticipantes] = useState<string[]>([]);
+  const [descricao, setDescricao] = useState(initialRecord?.descricao ?? '');
+  const [participantes, setParticipantes] = useState<string[]>(initialRecord?.autores.filter(autor => autor.id !== currentUserId).map(autor => autor.id) ?? []);
+  const [photoError, setPhotoError] = useState<string>();
+  const [validation, setValidation] = useState<string>();
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,15 +54,22 @@ export function RecordForm({ grupos, catalogo, initialGroupId, currentUserId, on
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (submitting || photoError) return;
     const minutos = Number(duracao);
+    const result = recordSchemas.createFields.safeParse({ groupId: grupoId, hobbyId, data, duracaoMinutos: minutos, descricao, userIds: [currentUserId, ...participanteIds] });
     const next: Errors = {};
     if (!grupo) next.grupo = 'Escolha um grupo.';
-    if (!hobbyId) next.hobby = 'Escolha o hobby praticado.';
-    if (!data || data > todayISODate()) next.data = 'Informe um dia que já passou.';
-    if (!Number.isInteger(minutos) || minutos < 1 || minutos > 1440) next.duracao = 'Informe a duração em minutos, de 1 a 1440.';
-    if (!foto) next.foto = 'A foto é obrigatória.';
+    if (!foto && !initialRecord) next.foto = 'A foto é obrigatória.';
+    if (!result.success) {
+      const map: Record<string, keyof Errors> = { groupId: 'grupo', hobbyId: 'hobby', data: 'data', duracaoMinutos: 'duracao' };
+      for (const issue of result.error.issues) {
+        const field = map[String(issue.path[0])];
+        if (field) next[field] = issue.message;
+      }
+      setValidation(result.error.issues[0].message);
+    } else setValidation(undefined);
     setErrors(next);
-    if (!grupo || !foto || Object.keys(next).length > 0) return;
+    if (!grupo || !result.success || Object.keys(next).length) return;
 
     setSubmitting(true);
     try {
@@ -69,8 +81,10 @@ export function RecordForm({ grupos, catalogo, initialGroupId, currentUserId, on
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      {(error || validation) && <p role="alert">{error || validation}</p>}
       <SelectField
         label="Grupo"
+        disabled={!!initialRecord}
         value={grupoId}
         onChange={(e) => setGrupoId(e.target.value)}
         options={grupos.map((g) => ({ value: g.id, label: g.nome }))}
@@ -106,7 +120,7 @@ export function RecordForm({ grupos, catalogo, initialGroupId, currentUserId, on
             : 'Neste grupo cada registro vale a mesma pontuação, não importa a duração.'
         }
       />
-      <PhotoField label="Foto da atividade" hint="Obrigatória. Até 10 MB." value={foto} onChange={setFoto} error={errors.foto} />
+      <PhotoField label="Foto da atividade" hint={initialRecord ? 'Envie outra foto para substituir a atual. JPEG, PNG ou WebP, até 10 MB.' : 'Obrigatória. JPEG, PNG ou WebP, até 10 MB.'} optional={!!initialRecord} existingSrc={initialRecord?.foto} value={foto} onChange={setFoto} onError={setPhotoError} error={errors.foto} />
       <TextArea label="Descrição" optional value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Como foi?" />
       {outrosMembros.length > 0 && (
         <ChipGroup
@@ -118,8 +132,8 @@ export function RecordForm({ grupos, catalogo, initialGroupId, currentUserId, on
           hint="Quem você marcar também ganha pontos, com bônus de cooperação. Não precisa de confirmação."
         />
       )}
-      <Button type="submit" variant="primary" fullWidth disabled={submitting}>
-        {submitting ? 'Salvando…' : 'Salvar registro'}
+      <Button type="submit" variant="primary" fullWidth disabled={submitting || !!photoError}>
+        {submitting ? 'Salvando…' : initialRecord ? 'Salvar alterações' : 'Salvar registro'}
       </Button>
     </form>
   );

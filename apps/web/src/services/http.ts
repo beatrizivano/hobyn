@@ -11,7 +11,7 @@ export class ApiError extends Error {
     this.details = details;
   }
 }
-interface Options extends Omit<RequestInit, 'body'> { body?: unknown; auth?: boolean }
+interface Options extends Omit<RequestInit, 'body'> { body?: unknown; auth?: boolean; responseType?: 'json' | 'blob' }
 
 export function createApiClient(baseUrl = '/api', fetcher: typeof fetch = (...args) => fetch(...args)) {
   let session: Session | null = null;
@@ -24,7 +24,7 @@ export function createApiClient(baseUrl = '/api', fetcher: typeof fetch = (...ar
     listeners.forEach(listener => listener());
   };
   async function send<T>(path: string, options: Options, token: string | null): Promise<T> {
-    const { body, auth: _auth, ...init } = options;
+    const { body, auth: _auth, responseType, ...init } = options;
     const headers = new Headers(init.headers);
     if (token) headers.set('Authorization', `Bearer ${token}`);
     if (body !== undefined && !(body instanceof FormData)) headers.set('Content-Type', 'application/json');
@@ -38,7 +38,7 @@ export function createApiClient(baseUrl = '/api', fetcher: typeof fetch = (...ar
       if (error instanceof Error && error.name === 'AbortError') throw error;
       throw new ApiError('Não foi possível conectar ao servidor. Tente novamente.', 0);
     }
-    const payload = response.status === 204 ? undefined : await response.json().catch(() => undefined);
+    const payload = response.status === 204 ? undefined : response.ok && responseType === 'blob' ? await response.blob() : await response.json().catch(() => undefined);
     if (!response.ok) throw new ApiError(payload?.error ?? 'Não foi possível concluir a solicitação.', response.status, payload?.details);
     return payload as T;
   }

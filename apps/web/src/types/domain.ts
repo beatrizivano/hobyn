@@ -37,6 +37,8 @@ export interface Grupo {
 }
 
 export interface Registro {
+  criadoPorId?: string;
+  grupoEncerrado?: boolean;
   id: string;
   grupoId: string;
   hobby: Hobby;
@@ -116,3 +118,5 @@ export interface NovoGrupoInput {
   limiteRegistrosPorDia: number | null;
   endsAt: string | null;
 }
+
+export type RegistroFormInput = Omit<NovoRegistroInput, 'foto'> & { foto: File | null };

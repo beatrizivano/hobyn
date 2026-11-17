@@ -20,7 +20,8 @@
     "lint": "corepack pnpm --filter web lint",
     "typecheck": "corepack pnpm --filter web typecheck",
     "test:integration": "corepack pnpm --filter web test:integration",
-    "test:session": "corepack pnpm --filter api test:session"
+    "test:session": "corepack pnpm --filter api test:session",
+    "test:records": "corepack pnpm --filter api test:records"
   },
   "keywords": [],
   "author": "",

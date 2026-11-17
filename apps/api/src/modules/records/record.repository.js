@@ -195,11 +195,9 @@ export const recordRepository = {
         });
       }
 
-      return transaction.registro.findUnique({
-        where: { id: recordId },
-        include: recordInclude,
-      });
-    });
+      const record = await transaction.registro.findUnique({ where: { id: recordId }, include: recordInclude });
+      return { record, previousPhoto: existing.foto };
+    }, { isolationLevel: "Serializable" });
   },
 
   async deleteOwned(recordId, userId) {
@@ -224,7 +222,7 @@ export const recordRepository = {
       }
 
       await transaction.registro.delete({ where: { id: recordId } });
-      return { deleted: true };
-    });
+      return { deleted: true, photo: existing.foto };
+    }, { isolationLevel: "Serializable" });
   },
 };

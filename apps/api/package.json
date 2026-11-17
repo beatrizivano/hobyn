@@ -11,7 +11,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:status": "prisma migrate status",
-    "test:session": "tsx scripts/session-integration.js"
+    "test:session": "tsx scripts/session-integration.js",
+    "test:records": "tsx scripts/records-integration.js"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +37,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
     "shared": "workspace:*",
+    "sharp": "0.35.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

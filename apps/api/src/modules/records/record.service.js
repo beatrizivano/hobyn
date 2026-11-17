@@ -1,3 +1,4 @@
+import { uploadService } from "../../services/upload.service.js";
 import { HttpError } from "../../shared/http-error.js";
 import { recordRepository } from "./record.repository.js";
 
@@ -60,7 +61,27 @@ function throwForRecordResult(result) {
   return result;
 }
 
+function writeError(error) {
+  if (error.code === "P2034") throw new HttpError("Houve uma gravação simultânea. Tente salvar o registro novamente.", 409);
+  throw error;
+}
+
 export const recordService = {
+  async photo(userId, recordId) {
+    const record = await recordService.get(userId, recordId);
+    return uploadService.readPhoto(record.foto);
+  },
+  async createWithPhoto(userId, input, file) {
+    const key = await uploadService.savePhoto(file);
+    try { return await recordService.create(userId, { ...input, foto: key }); }
+    catch (error) { await uploadService.removePhoto(key); throw error; }
+  },
+  async updateWithPhoto(userId, recordId, input, file) {
+    if (!file) return recordService.update(userId, recordId, input);
+    const key = await uploadService.savePhoto(file);
+    try { return await recordService.update(userId, recordId, { ...input, foto: key }); }
+    catch (error) { await uploadService.removePhoto(key); throw error; }
+  },
   async list(userId, query) {
     const group = await recordRepository.findGroupForUser(query.groupId, userId);
     if (!group) {
@@ -213,7 +234,7 @@ export const recordService = {
         pontuadosUserIds: scorableUserIds,
         semPontuacaoUserIds: unscoredUserIds,
       };
-    });
+    }).catch(writeError);
   },
 
   async update(userId, recordId, input) {
@@ -231,12 +252,15 @@ export const recordService = {
         ...(data ? { data: activityDate(data) } : {}),
       },
       userIds,
-    );
-    return throwForRecordResult(result);
+    ).catch(writeError);
+    throwForRecordResult(result);
+    if (input.foto && result.previousPhoto !== input.foto) await uploadService.removePhoto(result.previousPhoto);
+    return result.record;
   },
 
   async delete(userId, recordId) {
-    const result = await recordRepository.deleteOwned(recordId, userId);
+    const result = await recordRepository.deleteOwned(recordId, userId).catch(writeError);
     throwForRecordResult(result);
+    await uploadService.removePhoto(result.photo);
   },
 };

@@ -85,7 +85,7 @@ corepack pnpm lint
 corepack pnpm typecheck
 ```
 
-`test` executa os 22 testes unitários da API e os 7 testes do cliente HTTP da web,
+`test` executa os testes unitários da API e do cliente HTTP da web,
 incluindo refresh simultâneo, expiração, falha de rede e encerramento de sessão.
 `typecheck` verifica os arquivos TS/TSX. O lint atual cobre JS/JSX.
 
@@ -111,8 +111,8 @@ Cria duas contas e um grupo temporários, confere contratos e permissões,
 restaura a sessão por cookie, testa refresh e edição de perfil e limpa as fixtures
 pelos endpoints. As exclusões lógicas e os logs históricos são preservados pelas
 regras da aplicação. O teste só aceita destinos locais e usa um cookie jar de teste;
-não substitui E2E em navegador. A foto da fixture é uma referência de teste pelo
-contrato JSON legado, não um upload real.
+não substitui E2E em navegador. O fluxo de registros usa arquivo real via multipart,
+leitura autenticada da foto, edição e exclusão.
 
 ## Integração web e API
 
@@ -135,17 +135,16 @@ Melhorias opcionais de autenticação estão em
 
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
 edição de nome/sobrenome, listagem/criação/detalhe/configuração de grupos,
-catálogo de hobbies, feed paginado e detalhe dos registros.
+catálogo de hobbies, criação multipart, feed paginado, detalhe, edição e exclusão
+dos registros, com leitura privada das fotos.
 As mutações de grupos invalidam o cache; logout e troca de identidade limpam
 os dados privados das queries. Não são usados dados dos mocks nas telas integradas.
 
 Ainda pendentes para fechar o fluxo do MVP:
 
-- Upload, armazenamento e limpeza de fotos; depois, envio do formulário de registro
-  e edição de fotos de perfil/grupo.
+- Envio de fotos de perfil/grupo; o upload de fotos dos registros já está implementado.
 - Emissão/entrada por convite e sua integração na web.
 - Consulta de ranking e sua integração na web.
-- Edição/exclusão de registros pela interface e testes de pontuação/concorrência.
 - Testes E2E no navegador com dois usuários, responsividade e falhas de rede reais.
 
 Conquistas, desafios e estatísticas avançadas continuam fora deste recorte.
@@ -155,6 +154,22 @@ sucesso sem persistência.
 Para publicar o build, configure um reverse proxy para `/api` ou informe a URL
 pública da API em `VITE_API_BASE_URL` no momento do build e ajuste CORS/cookies.
 Variáveis `VITE_*` são públicas e não devem conter segredos.
+
+## Fotos dos registros
+
+JPEG, PNG e WebP de até 10 MiB são processados e armazenados em
+`apps/api/storage/uploads`. O diretório é persistente e ignorado pelo Git;
+a variável opcional `UPLOAD_DIR` permite mudar seu local. Faça backup desse
+diretório junto com o banco. Não é necessária nova migration.
+
+Com o MySQL ligado, valide o módulo independentemente dos servidores de dev:
+
+```powershell
+corepack pnpm test:records
+```
+
+O contrato HTTP, as permissões e os cenários cobertos estão em
+[Upload e registros](docs/UPLOAD_E_REGISTROS.md).
 
 ## Docker e mudança de ambiente
 

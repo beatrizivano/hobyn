@@ -86,3 +86,20 @@ test('204 é aceito e cancelamento continua identificado como cancelamento', asy
   const aborted = createApiClient('/api', async () => { throw new DOMException('Aborted', 'AbortError'); });
   await assert.rejects(aborted.request('/groups'), error => error.name === 'AbortError');
 });
+
+test('multipart mantém o boundary sob responsabilidade do navegador e permite leitura binária autenticada', async () => {
+  const form = new FormData();
+  form.set('foto', new Blob(['foto'], { type: 'image/png' }), 'foto.png');
+  const client = createApiClient('/api', async (url, init) => {
+    assert.equal(init.headers.get('Authorization'), 'Bearer token');
+    if (url.endsWith('/photo')) return new Response(new Uint8Array([1, 2, 3]), { headers: { 'Content-Type': 'image/webp' } });
+    assert.equal(init.body, form);
+    assert.equal(init.headers.has('Content-Type'), false);
+    return json({ ok: true });
+  });
+  client.setSession(session('token'));
+  await client.request('/records', { method: 'POST', body: form });
+  const blob = await client.request('/records/id/photo', { responseType: 'blob' });
+  assert.equal(blob.type, 'image/webp');
+  assert.deepEqual(new Uint8Array(await blob.arrayBuffer()), new Uint8Array([1, 2, 3]));
+});

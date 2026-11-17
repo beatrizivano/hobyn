@@ -136,6 +136,13 @@ pontuação existentes. Para habilitar pontuação cooperativa, defina
 seed; sem esse valor, o endpoint rejeita registros cooperativos pontuáveis
 com erro explícito até que o fator seja configurado.
 
+O middleware de autenticação verifica o JWT e exige a claim `sid` com o ID da
+sessão. A consulta passa pelo service de auth e pelo repository, que busca a
+sessão do mesmo usuário com `revokedAt` nulo, `expiresAt` no futuro e conta ativa.
+Cadastro e login emitem o JWT somente após persistir a sessão. Refresh mantém o
+mesmo ID de sessão ao rotacionar o hash. Logout invalida imediatamente os JWTs
+da sessão revogada, sem encerrar outros logins.
+
 ### 3.2 Middlewares (`src/middlewares`)
 
 Middlewares são sempre globais ou reaproveitáveis entre módulos e nunca ficam dentro da pasta de um módulo específico. Exemplos previstos: autenticação (JWT), validação de schema Zod, upload de arquivos (Multer) e tratamento centralizado de erros.

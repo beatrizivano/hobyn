@@ -19,7 +19,8 @@
     "build": "corepack pnpm --filter web build",
     "lint": "corepack pnpm --filter web lint",
     "typecheck": "corepack pnpm --filter web typecheck",
-    "test:integration": "corepack pnpm --filter web test:integration"
+    "test:integration": "corepack pnpm --filter web test:integration",
+    "test:session": "corepack pnpm --filter api test:session"
   },
   "keywords": [],
   "author": "",

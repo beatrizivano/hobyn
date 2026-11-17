@@ -22,12 +22,15 @@ test("register grava hash da senha junto com a sessão e não expõe o hash", as
   authRepository.createUserWithSession = async (data) => {
     persistedData = data;
     return {
-      id: "usuario-456",
-      nome: data.userData.nome,
-      sobrenome: data.userData.sobrenome,
-      email: data.userData.email,
-      fotoDePerfil: null,
-      createdAt: new Date(),
+      user: {
+        id: "usuario-456",
+        nome: data.userData.nome,
+        sobrenome: data.userData.sobrenome,
+        email: data.userData.email,
+        fotoDePerfil: null,
+        createdAt: new Date(),
+      },
+      sessionId: "sessao-cadastro",
     };
   };
 
@@ -48,6 +51,7 @@ test("register grava hash da senha junto com a sessão e não expõe o hash", as
       refreshTokenService.hash(result.refreshToken),
     );
     assert.equal(result.user.hashSenha, undefined);
+    assert.equal(accessTokenService.verify(result.accessToken).sessionId, "sessao-cadastro");
     assert.equal(
       accessTokenService.verify(result.accessToken).userId,
       result.user.id,
@@ -113,7 +117,7 @@ test("login renova e revoga sessões sem reutilizar refresh tokens", async () =>
       email: user.email,
       password,
     });
-    assert.equal(accessTokenService.verify(login.accessToken).userId, user.id);
+    assert.deepEqual(accessTokenService.verify(login.accessToken), { userId: user.id, sessionId: session.id });
     assert.notEqual(
       session.refreshTokenHash,
       login.refreshToken,
@@ -122,6 +126,7 @@ test("login renova e revoga sessões sem reutilizar refresh tokens", async () =>
 
     const refreshed = await authService.refresh(login.refreshToken);
     assert.notEqual(refreshed.refreshToken, login.refreshToken);
+    assert.equal(accessTokenService.verify(refreshed.accessToken).sessionId, session.id);
     assert.equal(
       session.refreshTokenHash,
       refreshTokenService.hash(refreshed.refreshToken),

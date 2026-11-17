@@ -14,10 +14,11 @@ const {
 } = await import("./refresh-token.service.js");
 
 test("access token pode ser validado e identifica o usuário", () => {
-  const token = accessTokenService.generate("usuario-123");
+  const token = accessTokenService.generate("usuario-123", "sessao-123");
 
   assert.deepEqual(accessTokenService.verify(token), {
     userId: "usuario-123",
+    sessionId: "sessao-123",
   });
 });
 
@@ -45,4 +46,9 @@ test("cookie de refresh não pode ser lido pelo JavaScript do navegador", () => 
   assert.equal(options.path, "/api/auth");
   assert.ok(options.maxAge > 0);
   assert.equal("maxAge" in clearOptions, false);
+});
+
+test("access token não é emitido sem uma sessão", () => {
+  assert.throws(() => accessTokenService.generate("usuario-123"), TypeError);
+  assert.throws(() => accessTokenService.generate("usuario-123", ""), TypeError);
 });

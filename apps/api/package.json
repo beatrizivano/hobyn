@@ -10,7 +10,8 @@
     "db:seed": "tsx prisma/seed.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
-    "db:status": "prisma migrate status"
+    "db:status": "prisma migrate status",
+    "test:session": "tsx scripts/session-integration.js"
   },
   "keywords": [],
   "author": "",

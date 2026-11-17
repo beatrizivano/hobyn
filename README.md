@@ -85,9 +85,20 @@ corepack pnpm lint
 corepack pnpm typecheck
 ```
 
-`test` executa os 17 testes unitários da API e os 7 testes do cliente HTTP da web,
+`test` executa os 22 testes unitários da API e os 7 testes do cliente HTTP da web,
 incluindo refresh simultâneo, expiração, falha de rede e encerramento de sessão.
 `typecheck` verifica os arquivos TS/TSX. O lint atual cobre JS/JSX.
+
+Para validar o middleware de sessão com o MySQL local ligado:
+
+```powershell
+corepack pnpm test:session
+```
+
+Esse teste cria seu próprio servidor HTTP temporário em uma porta livre. Confere
+revogação imediata após logout, independência entre logins, sessão vencida,
+associação entre sessão e usuário e exclusão de conta. As contas de teste são
+excluídas logicamente ao finalizar.
 
 Com API e Vite iniciados, execute também:
 
@@ -110,6 +121,17 @@ as chamadas para `API_PROXY_TARGET` (padrão `http://127.0.0.1:3030`). Assim, we
 cookie de refresh ficam na mesma origem. O access token fica em memória; o cookie
 HttpOnly restaura a sessão após reload. Rotas privadas exigem uma sessão válida.
 API e web reutilizam os schemas do pacote local `shared` via `workspace:*`.
+
+O JWT inclui o identificador da sessão (`sid`). Em cada rota privada, o middleware
+confere que a sessão pertence ao usuário do token, não foi revogada e ainda não
+venceu, e que a conta continua ativa. Logout revoga os access tokens daquela
+sessão imediatamente; outros logins do mesmo usuário permanecem válidos.
+Tokens antigos sem `sid` são rejeitados; um refresh válido emite o novo formato.
+Essa mudança reutiliza a tabela de sessões existente, sem nova migration.
+
+Melhorias opcionais de autenticação estão em
+[Melhorias pós-MVP](docs/MELHORIAS_POS_MVP.md).
+
 
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
 edição de nome/sobrenome, listagem/criação/detalhe/configuração de grupos,

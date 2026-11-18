@@ -1,1 +1,11 @@
 .page { display: flex; flex-direction: column; gap: var(--space-5); }
+.bento { display: grid; gap: var(--space-4); }
+.identity, .actions { display: flex; flex-direction: column; justify-content: center; gap: var(--space-3); }
+.actions h2 { font-size: var(--text-lg); }
+.actions p { font-size: var(--text-sm); color: var(--color-ink-soft); }
+
+@media (min-width: 64rem) {
+  .bento { grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.2fr); }
+  .identity, .actions, .stats { padding: var(--space-5); }
+  .stats { grid-column: 1 / -1; }
+}

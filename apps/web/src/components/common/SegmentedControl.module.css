@@ -10,3 +10,7 @@
   cursor: pointer;
 }
 .selected { background: var(--color-ink); color: var(--color-white); }
+
+@media (min-width: 64rem) {
+  .group { align-self: flex-end; width: min(100%, 24rem); }
+}

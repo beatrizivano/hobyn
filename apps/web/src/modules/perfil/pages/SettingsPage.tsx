@@ -11,8 +11,16 @@ export function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<string>();
   async function perform(action: () => Promise<void>) {
+    if (busy) return;
     setBusy(true); setError(undefined);
     try { await action(); navigate('/login', { replace: true }); }
+    catch (failure) { setError(errorMessage(failure)); }
+    finally { setBusy(false); }
+  }
+  async function requestPasswordChange() {
+    if (busy) return;
+    setBusy(true); setError(undefined); setPasswordMessage(undefined);
+    try { const result = await authService.requestPasswordChange(); setPasswordMessage(result.message); }
     catch (failure) { setError(errorMessage(failure)); }
     finally { setBusy(false); }
   }
@@ -20,7 +28,7 @@ export function SettingsPage() {
     <section aria-labelledby="config-conta"><SectionTitle id="config-conta">Conta</SectionTitle>
       {error && <p role="alert">{error}</p>}
       {passwordMessage && <p role="status">{passwordMessage}</p>}
-      <Button fullWidth disabled={busy} onClick={() => { setBusy(true); setError(undefined); authService.requestPasswordChange().then(result => setPasswordMessage(result.message)).catch(failure => setError(errorMessage(failure))).finally(() => setBusy(false)); }}>Alterar senha</Button>
+      <Button fullWidth disabled={busy} onClick={() => { void requestPasswordChange(); }}>{busy ? 'Aguarde…' : 'Alterar senha'}</Button>
       <AccountActions busy={busy} onLogout={() => { void perform(authService.logout); }} onDeleteAccount={() => { void perform(authService.deleteAccount); }} />
     </section>
     <StateMessage kind="empty" title="Tempo de tela em breve">As metas de tempo de tela ainda não estão disponíveis.</StateMessage>

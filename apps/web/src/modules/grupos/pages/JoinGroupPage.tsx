@@ -13,6 +13,7 @@ export function JoinGroupPage() {
   const navigate = useNavigate();
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (join.isPending) return;
     const parsed = inviteSchemas.join.safeParse({ codigo });
     if (!parsed.success) { setValidation(parsed.error.issues[0]?.message); return; }
     setValidation(undefined);

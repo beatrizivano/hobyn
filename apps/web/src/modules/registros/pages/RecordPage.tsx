@@ -14,7 +14,7 @@ export function RecordPage() {
   if (record.error || !record.data) return <StateMessage kind="error" title="Registro não encontrado">{record.error?.message ?? 'Ele pode ter sido apagado pelo autor.'}</StateMessage>;
   const own = record.data.criadoPorId === user.data?.id && !record.data.grupoEncerrado;
   async function deleteRecord() {
-    if (!record.data || !window.confirm('Excluir este registro e sua foto? Os pontos já concedidos permanecem no histórico.')) return;
+    if (remove.isPending || !record.data || !window.confirm('Excluir este registro e sua foto? Os pontos já concedidos permanecem no histórico.')) return;
     const groupId = record.data.grupoId;
     try { await remove.mutateAsync(recordId); navigate(`/grupos/${groupId}`, { replace: true }); }
     catch { /* O erro da mutação permanece visível. */ }

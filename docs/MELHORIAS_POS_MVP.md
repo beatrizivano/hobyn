@@ -14,6 +14,59 @@ o menor esforço e as dependências determinam a posição.
 > administrador e sucessão automática para o membro ativo mais antigo,
 > preservando o histórico de registros.
 
+> **Concluído em 18/11/2026:** confirmação antes de excluir conta ou registro,
+> remover membro, sair do grupo e substituir um convite ainda válido. As ações
+> assíncronas bloqueiam o botão, exibem o andamento e possuem uma segunda trava no
+> handler para evitar reenvio enquanto a operação anterior estiver pendente.
+
+## Backlog técnico sem design ou gamificação
+
+Esta seleção prioriza confiabilidade, segurança e operação. Identidade visual,
+conquistas, desafios e novas regras de pontuação permanecem fora do escopo.
+
+### Alta prioridade para fechar a entrega
+
+1. **E2E do caminho principal com duas contas.** Cobrir cadastro, login, grupo,
+   convite, registro com foto, feed, ranking, remoção ou saída e restauração
+   da sessão ao reabrir o navegador.
+2. **Falhas reais de rede.** Preservar formulários, oferecer nova tentativa e
+   diferenciar validação, falta de permissão e indisponibilidade da API.
+
+### Alta prioridade antes de receber usuários reais
+
+1. **Proteção contra abuso.** Rate limiting por IP e conta em login, cadastro,
+   recuperação, ativação, convites e uploads, sem bloqueio permanente.
+2. **Persistência de fotos.** Usar volume com backup ou armazenamento compatível
+   com S3; detectar arquivos órfãos e referências cujo arquivo desapareceu.
+3. **Backup e restauração do MySQL.** Definir frequência, retenção, acesso e um
+   procedimento de restauração testado, em vez de apenas habilitar snapshots.
+4. **Sessão em produção.** Validar HTTPS, CORS, `Secure` e `SameSite` quando web
+   e API forem publicados em origens diferentes.
+5. **TLS do banco.** Repassar ao driver MariaDB as opções de certificado exigidas
+   por bancos gerenciados; atualmente a URL fornece apenas host, porta e credenciais.
+6. **Observabilidade mínima.** Criar health check, identificador por requisição,
+   logs estruturados de status/duração e captura de erros sem registrar segredos.
+7. **Entrega de e-mail.** Configurar domínio, SPF, DKIM, DMARC, remetente `noreply`
+   e limites de reenvio para ativação e recuperação de senha.
+
+### Prioridade média
+
+1. Sincronizar login, refresh e logout entre abas com `BroadcastChannel`.
+2. Listar sessões ativas e permitir que a pessoa encerre cada uma delas.
+3. Filtrar registros por grupo, hobby, participante e período.
+4. Preservar um rascunho local do registro quando houver falha de rede.
+5. Permitir remover explicitamente as fotos de perfil e grupo.
+6. Exportar os dados da própria conta em formato documentado.
+7. Arquivar ou encerrar grupos, preservando registros e ranking em modo de leitura.
+
+### Baixa prioridade
+
+1. Recortar, reposicionar e comprimir fotos no cliente antes do upload.
+2. Compartilhar registros sem tornar fotos privadas publicamente acessíveis.
+3. Enviar convite diretamente para uma conta existente e gerenciar pendências.
+4. Confirmar alteração de e-mail por link enviado aos endereços envolvidos.
+5. Adicionar PWA e leitura offline; criação offline exige fila e deduplicação.
+
 ## Escala
 
 - **Benefício muito alto:** recupera acesso, fecha um fluxo essencial ou muda

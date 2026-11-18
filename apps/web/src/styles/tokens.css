@@ -56,6 +56,7 @@
 
   /* Layout (mobile first) */
   --shell-max-width: 30rem;
+  --content-max-width: 42rem;
   --content-padding: var(--space-4);
   --nav-height: 4.5rem;
   --touch-target: 2.75rem;
@@ -73,4 +74,18 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root { --motion-fast: 0ms; }
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --shell-max-width: 72rem;
+    --content-padding: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --shell-max-width: 90rem;
+    --content-max-width: 70rem;
+  }
 }

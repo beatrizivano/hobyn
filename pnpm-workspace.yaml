@@ -2,6 +2,9 @@ packages:
   - "apps/*"
   - "packages/*"
 
+storeDir: .local-tools/pnpm-store
+packageImportMethod: copy
+
 allowBuilds:
   '@prisma/engines': false
   bson: false

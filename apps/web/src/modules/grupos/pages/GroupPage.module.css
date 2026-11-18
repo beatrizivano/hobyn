@@ -1,4 +1,20 @@
 .page { display: flex; flex-direction: column; gap: var(--space-5); }
-.panel { display: flex; flex-direction: column; gap: var(--space-4); }
+.cover { overflow: hidden; }
+.workspace { display: grid; gap: var(--space-4); }
+.aside, .primary { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.infoCard, .panel, .editor { display: flex; flex-direction: column; gap: var(--space-4); }
+.infoCard h2 { font-size: var(--text-lg); }
 .feed { display: flex; flex-direction: column; gap: var(--space-4); }
 .end { font-size: var(--text-sm); color: var(--color-ink-soft); text-align: center; }
+
+@media (min-width: 64rem) {
+  .workspace {
+    grid-template-columns: minmax(0, 1.8fr) minmax(17rem, 0.9fr);
+    grid-template-areas: "primary aside";
+    align-items: start;
+  }
+  .primary { grid-area: primary; }
+  .aside { grid-area: aside; }
+  .panel { min-height: 24rem; padding: var(--space-5); }
+  .infoCard, .editor { padding: var(--space-5); }
+}

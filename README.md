@@ -95,8 +95,8 @@ Para validar fotos de perfil e grupo com o MySQL local ligado:
 corepack pnpm test:profile-group-photos
 ```
 
-O fluxo privado, a substituição e a limpeza de arquivos estão documentados em
-[Fotos de perfil e grupo](docs/FOTOS_PERFIL_GRUPO.md).
+O fluxo privado, a substituição e a limpeza de arquivos estão resumidos em
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 Para validar o ranking com o MySQL local ligado:
 
@@ -104,8 +104,8 @@ Para validar o ranking com o MySQL local ligado:
 corepack pnpm test:rankings
 ```
 
-A classificação soma os logs dos membros ativos e está documentada em
-[Ranking dos grupos](docs/RANKING.md).
+A classificação soma os logs dos membros ativos e está resumida em
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 Para validar convites com o MySQL local ligado:
 
@@ -114,7 +114,8 @@ corepack pnpm test:invites
 ```
 
 O teste cobre emissão, permissões, renovação, expiração e entrada concorrente.
-O contrato completo está em [Convites de grupo](docs/CONVITES.md).
+As decisões do fluxo estão no documento consolidado
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 Para validar saída, remoção e sucessão automática de membros:
 
@@ -122,8 +123,8 @@ Para validar saída, remoção e sucessão automática de membros:
 corepack pnpm test:memberships
 ```
 
-As regras de preservação de histórico estão em
-[Saída e remoção de membros](docs/GESTAO_DE_MEMBROS.md).
+As regras de preservação de histórico estão resumidas em
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 Para validar o middleware de sessão com o MySQL local ligado:
 
@@ -143,8 +144,8 @@ corepack pnpm test:password-email
 ```
 
 Em desenvolvimento, os links são exibidos no terminal da API. O SMTP genérico,
-o remetente `noreply` e as regras de ativação estão documentados em
-[Ativação por e-mail e senhas](docs/AUTENTICACAO_EMAIL_E_SENHA.md).
+o remetente `noreply` e as regras de ativação estão resumidos em
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 Com API e Vite iniciados, execute também:
 
@@ -175,8 +176,8 @@ sessão imediatamente; outros logins do mesmo usuário permanecem válidos.
 Tokens antigos sem `sid` são rejeitados; um refresh válido emite o novo formato.
 Essa mudança reutiliza a tabela de sessões existente, sem nova migration.
 
-Melhorias opcionais de autenticação estão em
-[Melhorias pós-MVP](docs/MELHORIAS_POS_MVP.md).
+As principais decisões e pendências técnicas estão consolidadas em
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 
 Já conectados: cadastro, login, `/me`, refresh, logout, exclusão de conta,
@@ -213,8 +214,8 @@ Com o MySQL ligado, valide o módulo independentemente dos servidores de dev:
 corepack pnpm test:records
 ```
 
-O contrato HTTP, as permissões e os cenários cobertos estão em
-[Upload e registros](docs/UPLOAD_E_REGISTROS.md).
+O contrato HTTP, as permissões e os cenários cobertos estão resumidos em
+[Decisões técnicas do projeto](DECISOES_TECNICAS_HOBYN.docx).
 
 ## Docker e mudança de ambiente
 

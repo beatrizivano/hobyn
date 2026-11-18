@@ -9,6 +9,7 @@ interface AccountActionsProps {
 
 export function AccountActions({ onLogout, onDeleteAccount, busy }: AccountActionsProps) {
   function confirmDelete() {
+    if (busy) return;
     const ok = window.confirm(
       'Excluir sua conta? Você deixa de aparecer nos grupos, mas o histórico dos grupos que você participou é mantido.',
     );

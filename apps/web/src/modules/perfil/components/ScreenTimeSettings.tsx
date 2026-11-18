@@ -24,13 +24,17 @@ export function ScreenTimeSettings({ goalMinutes, onSaveGoal, onSaveToday }: Scr
   const [goalError, setGoalError] = useState<string>();
   const [todayError, setTodayError] = useState<string>();
   const [feedback, setFeedback] = useState('');
+  const [savingGoal, setSavingGoal] = useState(false);
+  const [savingToday, setSavingToday] = useState(false);
 
   async function saveGoal(event: FormEvent) {
     event.preventDefault();
+    if (savingGoal) return;
     if (goal.trim() === '') {
       setGoalError(undefined);
-      await onSaveGoal(null);
-      setFeedback('Meta removida.');
+      setSavingGoal(true);
+      try { await onSaveGoal(null); setFeedback('Meta removida.'); }
+      finally { setSavingGoal(false); }
       return;
     }
     const minutes = parseMinutes(goal);
@@ -39,21 +43,23 @@ export function ScreenTimeSettings({ goalMinutes, onSaveGoal, onSaveToday }: Scr
       return;
     }
     setGoalError(undefined);
-    await onSaveGoal(minutes);
-    setFeedback('Meta salva.');
+    setSavingGoal(true);
+    try { await onSaveGoal(minutes); setFeedback('Meta salva.'); }
+    finally { setSavingGoal(false); }
   }
 
   async function saveToday(event: FormEvent) {
     event.preventDefault();
+    if (savingToday) return;
     const minutes = parseMinutes(today);
     if (minutes === null) {
       setTodayError('Informe os minutos de hoje, de 0 a 1440.');
       return;
     }
     setTodayError(undefined);
-    await onSaveToday(minutes);
-    setToday('');
-    setFeedback('Tempo de hoje salvo.');
+    setSavingToday(true);
+    try { await onSaveToday(minutes); setToday(''); setFeedback('Tempo de hoje salvo.'); }
+    finally { setSavingToday(false); }
   }
 
   return (
@@ -71,7 +77,7 @@ export function ScreenTimeSettings({ goalMinutes, onSaveGoal, onSaveToday }: Scr
           error={goalError}
           hint="Sem meta, nada é acompanhado."
         />
-        <Button type="submit" fullWidth>Salvar meta</Button>
+        <Button type="submit" fullWidth disabled={savingGoal}>{savingGoal ? 'Salvando…' : 'Salvar meta'}</Button>
       </form>
       <form className={styles.form} onSubmit={saveToday} noValidate>
         <TextField
@@ -85,7 +91,7 @@ export function ScreenTimeSettings({ goalMinutes, onSaveGoal, onSaveToday }: Scr
           error={todayError}
           hint="Você informa o valor; o app não mede o uso do aparelho."
         />
-        <Button type="submit" fullWidth>Salvar tempo de hoje</Button>
+        <Button type="submit" fullWidth disabled={savingToday}>{savingToday ? 'Salvando…' : 'Salvar tempo de hoje'}</Button>
       </form>
       <p className={styles.feedback} role="status">{feedback}</p>
     </div>

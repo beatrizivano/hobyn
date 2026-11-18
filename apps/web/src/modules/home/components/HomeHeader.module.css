@@ -9,3 +9,10 @@
 .greeting { font-size: var(--text-sm); }
 .name { font-size: var(--text-2xl); overflow-wrap: anywhere; }
 .profile { display: block; flex: none; border-radius: var(--radius-full); box-shadow: var(--shadow); }
+
+@media (min-width: 64rem) {
+  .header { align-items: center; padding-bottom: 0; border-bottom: 0; }
+  .greeting { color: var(--color-ink-soft); }
+  .name { font-size: clamp(var(--text-2xl), 3vw, 2.75rem); }
+  .profile { display: none; }
+}

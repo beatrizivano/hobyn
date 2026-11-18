@@ -16,8 +16,8 @@ export function HomeHeader({ user }: HomeHeaderProps) {
   return (
     <header className={styles.header}>
       <div>
-        <p className={styles.greeting}>Olá,</p>
-        <h1 className={styles.name}>{user.nome}</h1>
+        <p className={styles.greeting}>Olá, {user.nome}</p>
+        <h1 className={styles.name}>Grupos</h1>
       </div>
       <Link to="/perfil" aria-label="Abrir perfil" className={styles.profile}>
         <Avatar name={fullName(user)} src={user.fotoDePerfil} size="lg" />

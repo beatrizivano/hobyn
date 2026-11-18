@@ -8,3 +8,18 @@
   scroll-snap-type: x proximity;
 }
 .item { flex: 0 0 9.5rem; scroll-snap-align: start; }
+
+@media (min-width: 64rem) {
+  .list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
+  .item { min-width: 0; }
+}
+
+@media (min-width: 80rem) {
+  .list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

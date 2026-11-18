@@ -1,2 +1,12 @@
 .page { display: flex; flex-direction: column; gap: var(--space-5); }
-.actions { display: flex; gap: var(--space-3); margin-top: var(--space-2); }
+.bento { display: grid; gap: var(--space-4); }
+.groupsPanel, .actionsPanel { min-width: 0; }
+.actionsPanel { display: flex; flex-direction: column; gap: var(--space-3); }
+.actionsPanel p { font-size: var(--text-sm); color: var(--color-ink-soft); }
+.actions { display: flex; flex-direction: column; gap: var(--space-3); margin-top: auto; }
+
+@media (min-width: 64rem) {
+  .page { gap: var(--space-6); }
+  .bento { grid-template-columns: minmax(0, 2fr) minmax(15rem, 0.85fr); align-items: stretch; }
+  .groupsPanel, .actionsPanel { padding: var(--space-5); }
+}
